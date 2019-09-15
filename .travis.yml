@@ -1,9 +1,13 @@
 language: python
 python:
-  - '3.6'
+- '3.6'
 install:
-  - pip install -r tests/requirements.txt
-  - pip install -r requirements.txt
-  - python setup.py install
-script:
-  pytest
+- pip install -r tests/requirements.txt
+- pip install -r requirements.txt
+- python setup.py install
+script: pytest
+deploy:
+  provider: pypi
+  user: rasmunk
+  password:
+    secure: Q8YazcHMVRtA56TowbhpyevLwodLeIyfahpUy2VB0VBe1wHo3Iw95/Vj7Ow8qryYvQKfCEciZBlHK/B5S/2xvWmijuNgEa4NXS9+gviWPXl6ZY2JpP3a+VNgYk5Rya1XCFuzEAShVyiT0SYBW3KygpxGngop3I7gK+0Gl8PU/sUzkl3THwjNhDKd4196PS3fJ04sBB5ry9VkhV3F4d9AanlnFox1sMy6EmZzZZqRChMOX+BvStBPrHpjsPB0ICQX+rskcyy7lIDIMLqfw2A5UHoTt6eN4b2gvA5VG4rWk3ZfehTkosYQVz763Chgr2/GXTEfvhBBo0AyBeMQHuJ+S0W4mllwgKMaMp6SFmHvOSAsQDnRmHYpuTfz07EQt0cDBhd41zHbf+74rjrw3aRFqvspq1FukRgIN4RHdYOOY2ANlSY7yzZBqYL9x/kTB9OO4z5bjVFcbdOwgAQRMqhmFVwBbf93nxrb6hx6Uj70WFY6DnETf0Rs6S07maprcQS2gUzIpvH2Jyrd7NEcYmT8UrvkTT7cY0gEW5cY6KFNnsF99Jtluxg85O1+BYmpM9XfzfuEbW0aGvmwsBh32eTk4iv5PYebCwBMbgEDPMwgiydfpSxqbz81WCaib1Tqlnd0m8pzULtFx4vlLB7VgsVlR5u4hBuMHVOaqrHfnU43sEw=
