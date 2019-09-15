@@ -1,0 +1,3 @@
+[submodule "projects_base"]
+	path = projects_base
+	url = https://github.com/rasmunk/projects_base.git
