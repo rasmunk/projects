@@ -1,0 +1,11 @@
+<p> {{ search_description }} </p>
+<form id="form-search">
+    <div class="left">
+        {% for field in form %}
+            {{ form_field(field) }}
+        {% endfor %}
+    </div>
+</form>
+<img class="loading-spinner"
+     src="{{ url_for('common_static', filename='gif/light_green_loader.gif') }}"
+     hidden>

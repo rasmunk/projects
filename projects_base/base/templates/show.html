@@ -1,0 +1,67 @@
+<div class="container-full">
+    {% if object %}
+        <div class="container-fluid top-section section">
+            <h1 class="left">
+                <a href="{{ url_for('show', object_id=object._id)}}"
+                   style="word-wrap: break-word; color: black;">
+                    {{ object.name }}
+                </a>
+            </h1>
+            <div class="left text-block">
+                <p>{{ object.description }}</p>
+            </div>
+        </div>
+        <div class="container-fluid mid-section section">
+            <div class="left">
+                <img src="{{ url_for('img_render', filename=object.image) }}"
+                     class="img-fluid">
+            </div>
+        </div>
+        <div class="container-fluid bottom-section section">
+            {% if owner %}
+                {% from '_formhelpers.html' import form_field %}
+                <div class="submission-form center">
+                    <form id="form-update"
+                          action="{{ url_for('update', object_id=object._id) }}"
+                          method="POST" enctype="multipart/form-data">
+                        {% for field in form %}
+                            {% if field.id in ['image'] %}
+                                {{ form_field(field, with_label=True) }}
+                            {% else %}
+                                {{ form_field(field) }}
+                            {% endif %}
+                        {% endfor %}
+                        <div class="form-group">
+                            <input id="btn-update" type="submit"
+                                   class="btn btn-warning btn-block"
+                                   value="Update">
+                        </div>
+                    </form>
+                    <form id="form-delete"
+                          action="{{ url_for('delete', object_id=object._id) }}"
+                          method="POST">
+                        {{ form_field(form.csrf_token) }}
+                        <input id="btn-delete" type="submit"
+                               class="btn btn-danger btn-block" value="Delete">
+                    </form>
+                </div>
+            {% else %}
+                {% for key, value in object.__dict__.items() %}
+                    {% if key not in hidden_properties_list %}
+                        <p> {{ key.capitalize() }}:
+                            {% if value is string %}
+                                {{ value }}
+                            {% elif value is iterable %}
+                                {% for item in value %}
+                                    {{ item }}
+                                {% endfor %}
+                            {% else %}
+                                {{ value }}
+                            {% endif %}
+                        </p>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
+    {% endif %}
+</div>

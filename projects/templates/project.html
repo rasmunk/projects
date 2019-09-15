@@ -1,0 +1,6 @@
+{% extends "_projects_base.html" %}
+{% block content %}
+    {% set hidden_properties_list = ['_id', '_type', 'name','description',
+                                     'image', 'csrf_token'] %}
+    {% include "show.html" %}
+{% endblock %}

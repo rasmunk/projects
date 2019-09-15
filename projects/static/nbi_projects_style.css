@@ -1,0 +1,11 @@
+.banner img {
+    border: 0;
+    max-width: 100%;
+    position: relative;
+    left: 5%;
+    margin-left: 0;
+}
+
+.list-inline {
+    text-align: center;
+}

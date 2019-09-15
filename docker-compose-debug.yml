@@ -1,0 +1,13 @@
+version: '3.7'
+
+# Only use this stack for development or debugging,
+# A WSGI stack should be used for production (docker-compose.yml)
+services:
+  web:
+    image: nielsbohr/projects-site:edge
+    container_name: projects
+    ports:
+      - "80:80/tcp"
+    volumes:
+      - ./persistence:/var/projects/persistence:rw
+    command: python3 /var/projects/run.py --debug --port 80

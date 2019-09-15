@@ -1,0 +1,10 @@
+version: '3.7'
+
+services:
+  web:
+    image: nielsbohr/projects-site:latest
+    container_name: projects
+    ports:
+      - "80:80/tcp"
+    volumes:
+      - ./persistence:/var/projects/persistence:rw
