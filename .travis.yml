@@ -12,6 +12,7 @@ script:
   - flake8
   - pytest
 deploy:
+  distributions: sdist bdist_wheel
   provider: pypi
   user: rasmunk
   password:

@@ -5,17 +5,11 @@ from distutils.core import setup
 
 cur_dir = os.path.abspath(os.path.dirname(__file__))
 
-# Get the current package version.
-version_ns = {}
-with open(os.path.join(cur_dir, 'version.py')) as f:
-    exec(f.read(), {}, version_ns)
-
-
 long_description = open('README.rst').read()
 
 setup(
     name='projects-site',
-    version=version_ns['__version__'],
+    version='0.0.3',
     long_description=long_description,
     description="""
                 A website template for hosting project
@@ -26,7 +20,8 @@ setup(
     author_email='rasmus.munk@nbi.ku.dk',
     classifiers=[
         'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6'
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7'
     ],
     keywords=['Website', 'Flask', 'MetaData'],
     packages=find_packages(),
