@@ -7,10 +7,10 @@ config.read(os.path.abspath("projects_base/res/config.ini"))
 config.read(os.path.abspath("res/config.ini"))
 # Required folders
 folders = {}
-folders['DATA_FOLDER'] = app.config['DATA_FOLDER'] = config.get('PROJECTS',
-                                                                'data_folder')
+folders['DATA_FOLDER'] = app.config['DATA_FOLDER'] \
+    = os.path.abspath(config.get('PROJECTS', 'data_folder'))
 folders['UPLOAD_FOLDER'] = app.config['UPLOAD_FOLDER'] \
-    = config.get('BASE', 'upload_folder')
+    = os.path.abspath(config.get('PROJECTS', 'upload_folder'))
 
 # Create required folders for the application if they don't exist
 for key, folder in folders.items():
@@ -21,12 +21,12 @@ for key, folder in folders.items():
         pass
 
 # Db lockfile
-app.config['DB_LOCK'] = os.path.join(config.get('PROJECTS', 'data_folder'),
-                                     'projects_db_lock')
+app.config['DB_LOCK'] = os.path.join(
+    os.path.abspath(config.get('PROJECTS', 'data_folder')), 'projects_db_lock')
 
 # Default db target
-app.config['DB'] = os.path.join(config.get('PROJECTS', 'data_folder'),
-                                "projects_dev")
+app.config['DB'] = os.path.join(
+    os.path.abspath(config.get('PROJECTS', 'data_folder')), "projects_dev")
 
 # Onetime authentication reset token salt
 app.config['ONETIME_TOKEN_SALT'] = os.urandom(24)

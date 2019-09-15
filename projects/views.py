@@ -60,8 +60,9 @@ def show(object_id):
                 form[attr].flags = None
     else:
         # Translate area keys to values
-        entity.area = [area[1] for area in form.area.choices
-                       if area[0] in entity.area]
+        if hasattr(entity, 'area'):
+            entity.area = [area[1] for area in form.area.choices
+                           if area[0] in entity.area]
     return render_template('project.html', object=entity, owner=owner,
                            form=form)
 
@@ -120,7 +121,7 @@ def update(object_id):
     if form.validate_on_submit():
         # Only save the image if a new was submitted, else keep the old name
         f = form.image.data
-        if f != '':
+        if f.filename != '':
             filename = secure_filename(unique_name_encoding(f.filename))
             f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             # Remove old

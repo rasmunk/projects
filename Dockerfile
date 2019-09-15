@@ -35,6 +35,7 @@ RUN a2dissite 000-default.conf && \
 
 # Prepare WSGI launcher script
 COPY ./projects $PROJECTS_DIR/projects
+COPY ./res $PROJECTS_DIR/res
 COPY ./projects_base $PROJECTS_DIR/projects_base
 COPY ./apache/app.wsgi $PROJECTS_DIR/wsgi/
 COPY ./run.py $PROJECTS_DIR/
@@ -46,13 +47,9 @@ RUN mkdir -p $PROJECTS_DIR/persistence && \
 # Copy in the source code
 COPY . /app
 WORKDIR /app
-ENV ENV_DIR=/etc/projects
 
 # Install the envvars script, code and cleanup
-RUN mkdir -p $ENV_DIR && \
-    cp projects-envvars.py $ENV_DIR/ && \
-    echo "export ENV_DIR ${ENV_DIR}" >> /etc/apache2/envars && \
-    pip3 install setuptools && \
+RUN pip3 install setuptools && \
     pip3 install wheel==0.30.0 && \
     python3 setup.py bdist_wheel && \
     pip3 install -r requirements.txt && \
