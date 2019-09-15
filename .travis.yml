@@ -1,20 +1,12 @@
 language: python
 python:
+- '3.5'
 - '3.6'
 install:
-<<<<<<< HEAD
-  - pip install -r tests/requirements.txt
-  - pip install -r requirements.txt
-  - python setup.py install
-script:
-  pytest
-deploy:
-  provider: pypi
-  user: "rasmunk"
-=======
 - pip install -r tests/requirements.txt
 - pip install -r requirements.txt
 - python setup.py install
+before_script: flake8
 script: pytest
 deploy:
   provider: pypi
@@ -24,4 +16,3 @@ deploy:
   on:
     tags: true
     branch: master
->>>>>>> cc2bfd19ea2c1fcc747a98ceaa8f4bb0441867f7
