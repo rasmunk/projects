@@ -24,6 +24,11 @@ setup(
     url='https://github.com/rasmunk/projects-site',
     author='Rasmus Munk',
     author_email='rasmus.munk@nbi.ku.dk',
+    classifiers=[
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6'
+    ],
+    keywords=['Website', 'Flask', 'MetaData'],
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
