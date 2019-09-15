@@ -178,8 +178,7 @@ def request_auth():
                                    confirm_url=confirm_url)
             msg = Message(subject=form.email.data
                           + " requests {title} Projects access".format(
-                title=app.config['TITLE']
-            ),
+                              title=app.config['TITLE']),
                           html=html, recipients=app.config['ADMINS_EMAIL'],
                           sender=app.config['MAIL_USERNAME'])
             mail.send(msg)
@@ -224,8 +223,8 @@ def approve_auth(token):
             msg = Message(subject='{title} Projects Account approval'.format(
                 title=app.config['TITLE']
             ),
-                          html=html, recipients=[email],
-                          sender=app.config['MAIL_USERNAME'])
+                html=html, recipients=[email],
+                sender=app.config['MAIL_USERNAME'])
             mail.send(msg)
             flash("The account: " + email + " has been approved and created",
                   'success')
@@ -321,5 +320,5 @@ def projects_static(filename):
 
 @app.route('/static/images/<filename>')
 def projects_images(filename):
-    return send_from_directory(os.path.join(app.config['PROJECTS_STATIC_FOLDER'],
-                                            'images'), filename)
+    return send_from_directory(os.path.join(
+        app.config['PROJECTS_STATIC_FOLDER'], 'images'), filename)

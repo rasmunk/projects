@@ -2,7 +2,6 @@ import unittest
 import os
 from projects import app
 from projects.models import Project
-from projects.conf import config
 
 
 class FairTestCase(unittest.TestCase):

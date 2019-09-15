@@ -13,7 +13,7 @@ def is_safe_url(target):
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and \
-           ref_url.netloc == test_url.netloc
+        ref_url.netloc == test_url.netloc
 
 
 # LoginManager
@@ -58,4 +58,3 @@ def unique_name_decode(name):
     assert type(name) == str
     idx = name.rfind('_')
     return name[:idx]
-

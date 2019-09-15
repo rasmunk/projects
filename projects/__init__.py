@@ -53,4 +53,3 @@ if app.debug:
                     is_authenticated=True, is_anonymous=False,
                     confirmed_on=datetime.datetime.now())
         user.save()
-

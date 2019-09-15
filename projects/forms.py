@@ -52,10 +52,9 @@ class AuthRequestForm(FlaskForm):
 
 
 class PasswordResetForm(AuthRequestForm):
-    password = PasswordField('Password',
-                             validators=[DataRequired(), Length(min=8),
-                                         EqualTo('confirm',
-                                                 message='Passwords must match')])
+    password = PasswordField('Password', validators=[
+        DataRequired(), Length(min=8),
+        EqualTo('confirm', message='Passwords must match')])
     confirm = PasswordField('Repeat Password')
 
 
@@ -64,5 +63,5 @@ class LoginForm(FlaskForm):
         DataRequired(),
         Email(message='Invalid email address format'),
         Regexp(r'' + config.get('PROJECTS', 'auth_regex_username'),
-            message=config.get('PROJECTS', 'auth_regex_msg'))])
+               message=config.get('PROJECTS', 'auth_regex_msg'))])
     password = PasswordField('Password', validators=[DataRequired()])
