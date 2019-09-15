@@ -1,7 +1,8 @@
 import unittest
 import os
-from projects.models import Project
 from projects import app
+from projects.models import Project
+from projects.conf import config
 
 
 class FairTestCase(unittest.TestCase):
@@ -10,8 +11,10 @@ class FairTestCase(unittest.TestCase):
 
         # Required folders
         folders = {}
-        folders['DATA_FOLDER'] = app.config['DATA_FOLDER'] = os.getcwd() + "/data"
-        folders['UPLOAD_FOLDER'] = app.config['UPLOAD_FOLDER'] = os.getcwd() + "/images"
+        folders['DATA_FOLDER'] = app.config['DATA_FOLDER'] = os.path.join(
+            os.getcwd(), "data")
+        folders['UPLOAD_FOLDER'] = app.config['UPLOAD_FOLDER'] = os.path.join(
+            os.getcwd(), "images")
         # Create required folders for the application if they don't exist
         for key, folder in folders.items():
             try:
@@ -23,7 +26,8 @@ class FairTestCase(unittest.TestCase):
         app.config['WTF_CSRF_ENABLED'] = False
         # Override default DB setting
         # -> use a testing db instead of the default
-        app.config['DB'] = app.config['DATA_FOLDER'] + "/dataset_test"
+        app.config['DB'] = os.path.join(app.config['DATA_FOLDER'],
+                                        "dataset_test")
         self.app = app.test_client()
 
     def tearDown(self):
@@ -36,6 +40,7 @@ class FairTestCase(unittest.TestCase):
 
     def create_user(self):
         pass
+
 
 if __name__ == '__main__':
     unittest.main()

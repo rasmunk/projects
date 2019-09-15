@@ -1,5 +1,7 @@
 # Instructs setup.py which package data should be include in the installation
 recursive-include projects/static *
 recursive-include projects/templates *
+recursive-include res *
 recursive-include projects_base/base/static *
 recursive-include projects_base/base/templates *
+recursive-include projects_base/res *
