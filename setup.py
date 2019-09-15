@@ -1,10 +1,29 @@
 # http://flask.pocoo.org/docs/0.12/patterns/distribute/
+import os
 from setuptools import find_packages
 from distutils.core import setup
 
+cur_dir = os.path.abspath(os.path.dirname(__file__))
+
+# Get the current package version.
+version_ns = {}
+with open(os.path.join(cur_dir, 'version.py')) as f:
+    exec(f.read(), {}, version_ns)
+
+
+long_description = open('README.rst').read()
+
 setup(
     name='projects-site',
-    version='0.0.1',
+    version=version_ns['__version__'],
+    long_description=long_description,
+    description="""
+                A website template for hosting project
+                metadata information via flask
+                """,
+    url='https://github.com/rasmunk/projects-site',
+    author='Rasmus Munk',
+    author_email='rasmus.munk@nbi.ku.dk',
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
