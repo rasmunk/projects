@@ -32,7 +32,7 @@ setup(
         'flask-bootstrap',
         'flask-nav',
         'flask_wtf',
-        'WTForms',
+        'wtforms',
         'requests',
         'wtforms-components',
         'flask_login',
