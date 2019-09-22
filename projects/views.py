@@ -1,33 +1,36 @@
 import os
-from projects import app, mail, project_manager
-from projects.models import Project, User
-from projects.forms import AuthRequestForm, LoginForm, \
-    PasswordResetForm, FileRequired
-from projects.helpers import unique_name_encoding, unique_name_decode
-from projects_base.base.forms import TagsSearchForm
+import datetime
 from flask import render_template, request, flash, redirect, url_for, \
     jsonify, send_from_directory
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_mail import Message
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
-from projects.helpers import generate_confirmation_token, confirm_token
 from bcrypt import hashpw, gensalt
-import datetime
+from projects import mail, project_manager, projects_blueprint
+from projects.conf import config
+from projects.models import Project, User
+from projects.forms import AuthRequestForm, LoginForm, \
+    PasswordResetForm, FileRequired
+from projects.helpers import unique_name_encoding, unique_name_decode
+from projects_base.base.forms import TagsSearchForm
+from projects.helpers import generate_confirmation_token, confirm_token
 
 
 # Routes
-@app.route("/")
-@app.route("/projects", methods=['GET'])
+@projects_blueprint.route('/')
+@projects_blueprint.route('/projects', methods=['GET'])
 def projects():
     form = TagsSearchForm()
     entities = Project.get_all()
-    return render_template('projects.html', title=app.config['TITLE'],
-                           grid_header=app.config['TITLE'] + " Projects",
+    return render_template('projects.html',
+                           title=config.get('PROJECTS', 'title'),
+                           grid_header="{} {}".format(
+                               config.get('PROJECTS', 'title'), "Projects"),
                            objects=entities, form=form)
 
 
-@app.route('/my_projects', methods=['GET'])
+@projects_blueprint.route('/my_projects', methods=['GET'])
 @login_required
 def my_projects():
     form = TagsSearchForm()
@@ -36,14 +39,14 @@ def my_projects():
     return render_template('projects.html', objects=entities, form=form)
 
 
-@app.route('/show/<object_id>', methods=['GET'])
+@projects_blueprint.route('/show/<object_id>', methods=['GET'])
 def show(object_id):
     form_class = project_manager.get_form_class()
     form = form_class()
     entity = Project.get(object_id)
     if entity is None:
         flash("That project dosen't exist", 'danger')
-        return redirect(url_for('projects'))
+        return redirect(url_for('projects.projects'))
 
     owner = False
     if current_user.is_authenticated and object_id in current_user.projects:
@@ -67,7 +70,7 @@ def show(object_id):
                            form=form)
 
 
-@app.route('/create_project', methods=['GET', 'POST'])
+@projects_blueprint.route('/create_project', methods=['GET', 'POST'])
 @login_required
 def create():
     form_class = project_manager.get_form_class()
@@ -77,7 +80,7 @@ def create():
         f = form.image.data
         # Make sure the saved image is filename is unique
         filename = secure_filename(unique_name_encoding(f.filename))
-        f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        f.save(os.path.join(config.get('PROJECTS', 'upload_folder'), filename))
         # Remove special fields
         if form.__contains__('csrf_token'):
             form._fields.pop('csrf_token')
@@ -93,24 +96,24 @@ def create():
         # Update user with new instance
         current_user.projects.append(entity_id)
         current_user.save()
-        url = url_for('show', object_id=entity_id, _external=True)
+        url = url_for('projects.show', object_id=entity_id, _external=True)
         flash("Your submission has been received,"
               " your metadata can be found at: " + url, 'success')
         return redirect(url)
     return render_template('create_project.html', form=form)
 
 
-@app.route('/update/<object_id>', methods=['POST'])
+@projects_blueprint.route('/update/<object_id>', methods=['POST'])
 @login_required
 def update(object_id):
     entity = Project.get(object_id)
     if entity is None:
         flash("That entity dosen't exist", 'danger')
-        return redirect(url_for('datasets'))
+        return redirect(url_for('projects.projects'))
 
     if object_id not in current_user.projects:
         flash("Your trying to update an entity that's not yours", 'danger')
-        return redirect(url_for('datasets'))
+        return redirect(url_for('projects.projects'))
 
     form_class = project_manager.get_form_class()
     form = form_class(CombinedMultiDict((request.files, request.form)))
@@ -123,9 +126,11 @@ def update(object_id):
         f = form.image.data
         if f.filename != '':
             filename = secure_filename(unique_name_encoding(f.filename))
-            f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            f.save(os.path.join(config.get('PROJECTS', 'upload_folder'),
+                                filename))
             # Remove old
-            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], entity.image))
+            os.remove(os.path.join(config.get('PROJECTS', 'upload_folder'),
+                                   entity.image))
         else:
             filename = entity.image
 
@@ -137,7 +142,7 @@ def update(object_id):
         entity.__dict__['image'] = filename
         entity_id = entity.save()
 
-        url = url_for('show', object_id=entity_id, _external=True)
+        url = url_for('projects.show', object_id=entity_id, _external=True)
         flash("Update Success, your data can be found at: " + url,
               'success')
         return redirect(url)
@@ -145,26 +150,27 @@ def update(object_id):
     return render_template('project.html', object=entity, form=form)
 
 
-@app.route('/delete/<object_id>', methods=['POST'])
+@projects_blueprint.route('/delete/<object_id>', methods=['POST'])
 @login_required
 def delete(object_id):
     entity = Project.get(object_id)
     if entity is None:
         flash("That entity dosen't exist", 'danger')
-        return redirect(url_for('projects'))
+        return redirect(url_for('projects.projects'))
     if object_id in current_user.projects:
         Project.remove(object_id)
         current_user.projects.remove(object_id)
-        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], entity.image))
+        os.remove(os.path.join(config.get('PROJECTS', 'upload_folder'),
+                               entity.image))
         current_user.save()
         flash("Entity: " + entity.name + " has been deleted", 'success')
     else:
         flash("Your trying to delete an entity you don't own", 'danger')
-    return redirect(url_for('projects'))
+    return redirect(url_for('projects.projects'))
 
 
 # Sends approval emails to every app.config['ADMINS_EMAIL']
-@app.route('/request_auth', methods=['POST'])
+@projects_blueprint.route('/request_auth', methods=['POST'])
 def request_auth():
     form = AuthRequestForm(request.form)
     if form.validate_on_submit():
@@ -172,15 +178,17 @@ def request_auth():
         user = User.get_with_first('email', form.email.data)
         if user is None:
             token = generate_confirmation_token(email=form.email.data)
-            confirm_url = url_for('approve_auth', token=token, _external=True)
+            confirm_url = url_for('projects.approve_auth', toke=token,
+                                  _external=True)
             html = render_template('email/activate_user.html',
                                    email=form.email.data,
                                    confirm_url=confirm_url)
             msg = Message(subject=form.email.data
-                          + " requests {title} Projects access".format(
-                              title=app.config['TITLE']),
-                          html=html, recipients=app.config['ADMINS_EMAIL'],
-                          sender=app.config['MAIL_USERNAME'])
+                          + " requests {} Projects access".format(
+                              config.get('PROJECTS', 'title')),
+                          html=html,
+                          recipients=config.get('MAIL', 'admins'),
+                          sender=config.get('MAIL', 'username'))
             mail.send(msg)
             return jsonify(data={
                 'success': 'Request successfully submitted'
@@ -197,7 +205,7 @@ def request_auth():
 
 
 # Accepts approval from admin's
-@app.route('/approve_auth/<token>')
+@projects_blueprint.route('/approve_auth/<token>')
 def approve_auth(token):
     email = confirm_token(token)
     if email is False:
@@ -217,21 +225,22 @@ def approve_auth(token):
             user.save()
 
             token = generate_confirmation_token(email=email)
-            reset_url = url_for('reset_password', token=token, _external=True)
+            reset_url = url_for('projects.reset_password',
+                                token=token, _external=True)
             html = render_template('email/reset_password.html', email=email,
                                    reset_password_url=reset_url)
-            msg = Message(subject='{title} Projects Account approval'.format(
-                title=app.config['TITLE']
-            ),
-                html=html, recipients=[email],
-                sender=app.config['MAIL_USERNAME'])
+            msg = Message(subject='{} Projects Account approval'.format(
+                config.get('PROJECTS', 'title')),
+                html=html,
+                recipients=[email],
+                sender=config.get('MAIL', 'username'))
             mail.send(msg)
-            flash("The account: " + email + " has been approved and created",
+            flash("The account {} has been approved and created".format(email),
                   'success')
-    return redirect(url_for('projects'))
+    return redirect(url_for('projects.projects'))
 
 
-@app.route('/reset_password/<token>', methods=['POST', 'GET'])
+@projects_blueprint.route('/reset_password/<token>', methods=['POST', 'GET'])
 def reset_password(token):
     email = confirm_token(token)
     if email is False:
@@ -251,12 +260,13 @@ def reset_password(token):
                                    gensalt())
             user.save()
             flash('Your password has now been updated', 'success')
-            return redirect(url_for('projects'))
+            return redirect(url_for('projects.projects'))
         return render_template('reset_password_form.html', form=form)
-    return redirect(url_for('login'))
+    return redirect(url_for('projects.login'))
 
 
-@app.route('/login', methods=['GET', 'POST'])
+# @app.route('/login', methods=['GET', 'POST'])
+@projects_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
     if form.validate_on_submit():
@@ -264,21 +274,21 @@ def login():
         if valid_user is not None:
             flash('Logged in successfully.', 'success')
             login_user(valid_user)
-            return redirect(url_for('projects'))
+            return redirect(url_for('projects.projects'))
         else:
             flash('Invalid Credentials', 'danger')
     return render_template('login.html', form=form)
 
 
-@app.route('/logout')
+@projects_blueprint.route('/logout')
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('projects'))
+    return redirect(url_for('projects.projects'))
 
 
 # TODO -> refactor with fair search forms in common views instead.
-@app.route('/search', methods=['GET'])
+@projects_blueprint.route('/search', methods=['GET'])
 def tag_external_search():
     form = TagsSearchForm(request.args, csrf_enabled=False)
     entities = {}
@@ -296,7 +306,7 @@ def tag_external_search():
 
 
 # TODO -> refactor with fair search forms in common views instead.
-@app.route('/search', methods=['POST'])
+@projects_blueprint.route('/search', methods=['POST'])
 def tag_native_search():
     form = TagsSearchForm(request.form)
     if form.validate_on_submit():
@@ -311,14 +321,3 @@ def tag_native_search():
         [msg for attr, errors in form.errors.items() for msg in errors])})
     response.status_code = 400
     return response
-
-
-@app.route('/static/<filename>')
-def projects_static(filename):
-    return send_from_directory(app.config['PROJECTS_STATIC_FOLDER'], filename)
-
-
-@app.route('/static/images/<filename>')
-def projects_images(filename):
-    return send_from_directory(os.path.join(
-        app.config['PROJECTS_STATIC_FOLDER'], 'images'), filename)

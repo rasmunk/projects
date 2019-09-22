@@ -6,7 +6,8 @@
         </div>
         {% from '_formhelpers.html' import form_field %}
         <div class="container-fluid section bottom-section text-center">
-            <img class="loading-spinner" src="{{ url_for('common_static', filename='gif/dark_green_loader.gif') }}" hidden>
+            <img class="loading-spinner" src="{{ url_for('projects_base.static',
+                                         filename='gif/dark_green_loader.gif') }}" hidden>
             <h3 class="margin">Credentials</h3>
             <br/>
             <div class="submission-form nbi-center">

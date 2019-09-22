@@ -1,14 +1,13 @@
-from projects import app
 from flask_login import current_user
-from flask_nav import Nav
 from flask_nav.elements import Navbar, View
-nav = Nav()
+from projects.conf import config
+from projects import nav
 
 
 @nav.navigation()
 def nav_bar():
     navbar = list(Navbar(
-        View('{title} Projects'.format(title=app.config['TITLE']),
+        View('{} Projects'.format(config.get('PROJECTS', 'title')),
              '.projects'),
         View('Projects', '.projects'),
     ).items)
@@ -23,8 +22,5 @@ def nav_bar():
             View('Login', '.login'),
         ])
 
-    return Navbar('{title} Projects'.format(title=app.config['TITLE']),
+    return Navbar('{} Projects'.format(config.get('PROJECTS', 'title')),
                   *navbar)
-
-
-nav.init_app(app)

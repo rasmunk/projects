@@ -5,8 +5,8 @@ from urllib.parse import urlparse, urljoin
 from flask import request
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 from projects import app
-from projects.models import User
 from projects import login_manager
+from projects.models import User
 
 
 def is_safe_url(target):
