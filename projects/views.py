@@ -36,7 +36,8 @@ def my_projects():
     form = TagsSearchForm()
     entities = [project for project in Project.get_all()
                 if project._id in current_user.projects]
-    return render_template('projects/projects.html', objects=entities, form=form)
+    return render_template('projects/projects.html', objects=entities,
+                           form=form)
 
 
 @projects_blueprint.route('/show/<object_id>', methods=['GET'])
@@ -227,7 +228,8 @@ def approve_auth(token):
             token = generate_confirmation_token(email=email)
             reset_url = url_for('projects.reset_password',
                                 token=token, _external=True)
-            html = render_template('projects/email/reset_password.html', email=email,
+            html = render_template('projects/email/reset_password.html',
+                                   email=email,
                                    reset_password_url=reset_url)
             msg = Message(subject='{} Projects Account approval'.format(
                 config.get('PROJECTS', 'title')),
@@ -302,7 +304,8 @@ def tag_external_search():
     # pass on errors
     return_form._errors = form.errors
     return_form._fields['tag'] = form._fields['tag']
-    return render_template('projects/projects.html', objects=entities, form=return_form)
+    return render_template('projects/projects.html', objects=entities,
+                           form=return_form)
 
 
 # TODO -> refactor with fair search forms in common views instead.
