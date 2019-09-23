@@ -9,7 +9,7 @@ long_description = open('README.rst').read()
 
 setup(
     name='projects-site',
-    version='0.0.4',
+    version='0.0.5',
     long_description=long_description,
     description="""
                 A website template for hosting project
