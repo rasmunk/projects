@@ -23,7 +23,7 @@ from projects.helpers import generate_confirmation_token, confirm_token
 def projects():
     form = TagsSearchForm()
     entities = Project.get_all()
-    return render_template('projects.html',
+    return render_template('projects/projects.html',
                            title=config.get('PROJECTS', 'title'),
                            grid_header="{} {}".format(
                                config.get('PROJECTS', 'title'), "Projects"),
@@ -36,7 +36,7 @@ def my_projects():
     form = TagsSearchForm()
     entities = [project for project in Project.get_all()
                 if project._id in current_user.projects]
-    return render_template('projects.html', objects=entities, form=form)
+    return render_template('projects/projects.html', objects=entities, form=form)
 
 
 @projects_blueprint.route('/show/<object_id>', methods=['GET'])
@@ -66,7 +66,7 @@ def show(object_id):
         if hasattr(entity, 'area'):
             entity.area = [area[1] for area in form.area.choices
                            if area[0] in entity.area]
-    return render_template('project.html', object=entity, owner=owner,
+    return render_template('projects/project.html', object=entity, owner=owner,
                            form=form)
 
 
@@ -100,7 +100,7 @@ def create():
         flash("Your submission has been received,"
               " your metadata can be found at: " + url, 'success')
         return redirect(url)
-    return render_template('create_project.html', form=form)
+    return render_template('projects/create_project.html', form=form)
 
 
 @projects_blueprint.route('/update/<object_id>', methods=['POST'])
@@ -147,7 +147,7 @@ def update(object_id):
               'success')
         return redirect(url)
     form.image.flags = None
-    return render_template('project.html', object=entity, form=form)
+    return render_template('projects/project.html', object=entity, form=form)
 
 
 @projects_blueprint.route('/delete/<object_id>', methods=['POST'])
@@ -180,7 +180,7 @@ def request_auth():
             token = generate_confirmation_token(email=form.email.data)
             confirm_url = url_for('projects.approve_auth', toke=token,
                                   _external=True)
-            html = render_template('email/activate_user.html',
+            html = render_template('projects/email/activate_user.html',
                                    email=form.email.data,
                                    confirm_url=confirm_url)
             msg = Message(subject=form.email.data
@@ -227,7 +227,7 @@ def approve_auth(token):
             token = generate_confirmation_token(email=email)
             reset_url = url_for('projects.reset_password',
                                 token=token, _external=True)
-            html = render_template('email/reset_password.html', email=email,
+            html = render_template('projects/email/reset_password.html', email=email,
                                    reset_password_url=reset_url)
             msg = Message(subject='{} Projects Account approval'.format(
                 config.get('PROJECTS', 'title')),
@@ -261,7 +261,7 @@ def reset_password(token):
             user.save()
             flash('Your password has now been updated', 'success')
             return redirect(url_for('projects.projects'))
-        return render_template('reset_password_form.html', form=form)
+        return render_template('projects/reset_password_form.html', form=form)
     return redirect(url_for('projects.login'))
 
 
@@ -277,7 +277,7 @@ def login():
             return redirect(url_for('projects.projects'))
         else:
             flash('Invalid Credentials', 'danger')
-    return render_template('login.html', form=form)
+    return render_template('projects/login.html', form=form)
 
 
 @projects_blueprint.route('/logout')
@@ -297,12 +297,12 @@ def tag_external_search():
     return_form.tag = form.tag
     if form.validate():
         entities = Project.get_with_search('tags', form.tag.data)
-        return render_template('projects.html', objects=entities,
+        return render_template('projects/projects.html', objects=entities,
                                form=return_form)
     # pass on errors
     return_form._errors = form.errors
     return_form._fields['tag'] = form._fields['tag']
-    return render_template('projects.html', objects=entities, form=return_form)
+    return render_template('projects/projects.html', objects=entities, form=return_form)
 
 
 # TODO -> refactor with fair search forms in common views instead.
