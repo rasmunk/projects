@@ -1,7 +1,7 @@
 import os
 import datetime
 from flask import render_template, request, flash, redirect, url_for, \
-    jsonify, send_from_directory
+    jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_mail import Message
 from werkzeug.datastructures import CombinedMultiDict
@@ -23,10 +23,12 @@ from projects.helpers import generate_confirmation_token, confirm_token
 def projects():
     form = TagsSearchForm()
     entities = Project.get_all()
+    tags = Project.get_top_with('tags', num=10)
     return render_template('projects/projects.html',
                            title=config.get('PROJECTS', 'title'),
                            grid_header="{} {}".format(
                                config.get('PROJECTS', 'title'), "Projects"),
+                           tags=list(tags.keys()),
                            objects=entities, form=form)
 
 
@@ -36,6 +38,7 @@ def my_projects():
     form = TagsSearchForm()
     entities = [project for project in Project.get_all()
                 if project._id in current_user.projects]
+
     return render_template('projects/projects.html', objects=entities,
                            form=form)
 
@@ -287,6 +290,19 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('projects.projects'))
+
+
+@projects_blueprint.route('/tag/<tag>', methods=['GET'])
+def tag_search(tag):
+    form = TagsSearchForm(data={'tag': tag}, csrf_enabled=False)
+    entities = {}
+    tags = Project.get_top_with('tags')
+    if form.validate():
+        entities = Project.get_with_search('tags', form.tag.data)
+
+    return render_template('projects/projects.html', tags=list(tags.keys()),
+                           objects=entities,
+                           form=form)
 
 
 # TODO -> refactor with fair search forms in common views instead.
