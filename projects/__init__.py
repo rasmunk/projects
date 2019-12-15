@@ -31,9 +31,7 @@ login_manager.login_view = 'login'
 # Connect mail
 mail = Mail(app)
 project_manager = ProjectFormManager()
-project_manager.register_form_class(config.get('PROJECTS', 'form_class'),
-                                    config.get('PROJECTS', 'form_module',
-                                               **{'fallback': None}))
+
 # Setup navbar
 nav = Nav()
 nav.init_app(app)

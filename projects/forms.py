@@ -27,6 +27,11 @@ class ProjectFormManager():
         self.form_class = class_
 
     def get_form_class(self):
+        if self.form_class is None:
+            self.register_form_class(
+                config.get('PROJECTS', 'form_class'),
+                config.get('PROJECTS', 'form_module',
+                           **{'fallback': None}))
         return self.form_class
 
 

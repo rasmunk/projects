@@ -1,8 +1,28 @@
-{% extends "projects/_projects_base.html" %}
-{% block content %}
-    {# define constant layout #}
+{% extends "base/grid.html" %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('projects.static', filename='nbi_projects_style.css') }}">
+    <script type="text/javascript"
+            src="{{ url_for('projects.static', filename='projects.js') }}">
+    </script>
+
+{% endblock %}
+
+{% block navbar %}
+    <div class="container-full">
+        <div class="banner">
+            <img src="{{ url_for('projects.static',
+             filename='images/bohrium_logo.png') }}">
+        </div>
+    </div>
+    {{ super() }}
+{% endblock %}
+
+{% block mid_grid_section %}
     {% set search_description = 'This field can be used to search for projects
-     by using their associated tags' %}
-    {% set tag_highlight_description = 'Tag highlights:' %}
-    {% include 'base/grid.html' %}
+ by using their associated tags' %}
+    {% include 'base/search_section.html' %}
+    {% include 'base/highlight_tags_section.html' %}
 {% endblock %}

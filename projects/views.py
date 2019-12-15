@@ -16,11 +16,12 @@ from projects.helpers import unique_name_encoding, unique_name_decode
 from projects_base.base.forms import TagsSearchForm
 from projects.helpers import generate_confirmation_token, confirm_token
 
-
 # Routes
 @projects_blueprint.route('/')
-@projects_blueprint.route('/projects', methods=['GET'])
-def projects():
+@projects_blueprint.route('/projects/', defaults={'attr': None},
+                          methods=['GET'])
+@projects_blueprint.route('/projects/<attr>', methods=['GET'])
+def projects(attr):
     form = TagsSearchForm()
     entities = Project.get_all()
     tags = Project.get_top_with('tags', num=10)
@@ -49,8 +50,8 @@ def show(object_id):
     form = form_class()
     entity = Project.get(object_id)
     if entity is None:
-        flash("That project dosen't exist", 'danger')
-        return redirect(url_for('projects.projects'))
+        flash("That project doesn't exist", 'danger')
+        return redirect(url_for('.projects'))
 
     owner = False
     if current_user.is_authenticated and object_id in current_user.projects:
@@ -299,7 +300,6 @@ def tag_search(tag):
     tags = Project.get_top_with('tags')
     if form.validate():
         entities = Project.get_with_search('tags', form.tag.data)
-
     return render_template('projects/projects.html', tags=list(tags.keys()),
                            objects=entities,
                            form=form)

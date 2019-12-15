@@ -4,7 +4,7 @@
         <div class="container-fluid top-section section text-center">
             <h1>Login</h1>
         </div>
-        {% from '_formhelpers.html' import form_field %}
+        {% from 'base/_formhelpers.html' import form_field %}
         <div class="container-fluid section bottom-section text-center">
             <img class="loading-spinner" src="{{ url_for('projects_base.static',
                                          filename='gif/dark_green_loader.gif') }}" hidden>
