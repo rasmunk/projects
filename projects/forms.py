@@ -12,7 +12,6 @@ class MultiCheckboxField(SelectMultipleField):
 
 
 class ProjectFormManager():
-
     form_class = None
 
     def register_form_class(self, class_name, module=None):
@@ -49,6 +48,14 @@ class DefaultProjectForm(FlaskForm):
 
 
 class AuthRequestForm(FlaskForm):
+    email = StringField('Email', validators=[
+        DataRequired(),
+        Email(message='Invalid email address format'),
+        Regexp(r'' + config.get('PROJECTS', 'auth_regex_username'),
+               message=config.get('PROJECTS', 'auth_regex_msg'))])
+
+
+class PasswordResetRequestForm(FlaskForm):
     email = StringField('Email', validators=[
         DataRequired(),
         Email(message='Invalid email address format'),
