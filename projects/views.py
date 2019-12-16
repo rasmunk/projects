@@ -188,8 +188,8 @@ def request_auth():
                                    email=form.email.data,
                                    confirm_url=confirm_url)
             msg = Message(subject=form.email.data
-                                  + " requests {} Projects access".format(
-                config.get('PROJECTS', 'title')),
+                          + " requests {} Projects access".format(
+                              config.get('PROJECTS', 'title')),
                           html=html,
                           recipients=config.get('MAIL', 'admins'),
                           sender=config.get('MAIL', 'username'))
@@ -234,7 +234,7 @@ def request_password_reset():
             mail.send(msg)
             return jsonify(
                 data={'success': 'A password reset link has been sent to {}'
-                    .format(email)})
+                      .format(email)})
     response = jsonify(data={'danger': ', '.join(
         ["{} - {}".format(attr, msg) for attr, errors in form.errors.items()
          for msg in errors])})
