@@ -182,8 +182,8 @@ def request_auth():
         user = User.get_with_first('email', form.email.data)
         if user is None:
             token = generate_confirmation_token(email=form.email.data)
-            confirm_url = url_for('projects.approve_auth', toke=token,
-                                  _external=True)
+            confirm_url = url_for('projects.approve_auth',
+                                  token=token, _external=True)
             html = render_template('projects/email/activate_user.html',
                                    email=form.email.data,
                                    confirm_url=confirm_url)
@@ -193,7 +193,12 @@ def request_auth():
                           html=html,
                           recipients=config.get('MAIL', 'admins'),
                           sender=config.get('MAIL', 'username'))
-            mail.send(msg)
+            try:
+                mail.send(msg)
+            except TimeoutError:
+                return jsonify(data={
+                    'danger': 'Timed out before request could be sent'
+                              ' to an admin for approval'})
             return jsonify(data={
                 'success': 'Request successfully submitted'
                            ', awaiting admin approval'})
