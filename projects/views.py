@@ -10,8 +10,8 @@ from bcrypt import hashpw, gensalt
 from projects import mail, project_manager, projects_blueprint
 from projects.conf import config
 from projects.models import Project, User
-from projects.forms import AuthRequestForm, LoginForm, \
-    PasswordResetForm, FileRequired
+from projects.forms import AuthRequestForm, PasswordResetRequestForm, \
+    LoginForm, PasswordResetForm, FileRequired
 from projects.helpers import unique_name_encoding, unique_name_decode
 from projects_base.base.forms import TagsSearchForm
 from projects.helpers import generate_confirmation_token, confirm_token
@@ -20,7 +20,7 @@ from projects.helpers import generate_confirmation_token, confirm_token
 # Routes
 @projects_blueprint.route('/')
 @projects_blueprint.route('/projects', methods=['GET'])
-def projects():
+def projects(attr):
     form = TagsSearchForm()
     entities = Project.get_all()
     tags = Project.get_top_with('tags', num=10)
@@ -49,8 +49,8 @@ def show(object_id):
     form = form_class()
     entity = Project.get(object_id)
     if entity is None:
-        flash("That project dosen't exist", 'danger')
-        return redirect(url_for('projects.projects'))
+        flash("That project doesn't exist", 'danger')
+        return redirect(url_for('.projects'))
 
     owner = False
     if current_user.is_authenticated and object_id in current_user.projects:
@@ -182,8 +182,8 @@ def request_auth():
         user = User.get_with_first('email', form.email.data)
         if user is None:
             token = generate_confirmation_token(email=form.email.data)
-            confirm_url = url_for('projects.approve_auth', toke=token,
-                                  _external=True)
+            confirm_url = url_for('projects.approve_auth',
+                                  token=token, _external=True)
             html = render_template('projects/email/activate_user.html',
                                    email=form.email.data,
                                    confirm_url=confirm_url)
@@ -193,7 +193,12 @@ def request_auth():
                           html=html,
                           recipients=config.get('MAIL', 'admins'),
                           sender=config.get('MAIL', 'username'))
-            mail.send(msg)
+            try:
+                mail.send(msg)
+            except TimeoutError:
+                return jsonify(data={
+                    'danger': 'Timed out before request could be sent'
+                              ' to an admin for approval'})
             return jsonify(data={
                 'success': 'Request successfully submitted'
                            ', awaiting admin approval'})
@@ -203,7 +208,41 @@ def request_auth():
             response.status_code = 400
             return response
     response = jsonify(data={'danger': ', '.join(
-        [msg for attr, errors in form.errors.items() for msg in errors])})
+        ["{} - {}".format(attr, msg) for attr, errors in form.errors.items()
+         for msg in errors])})
+    response.status_code = 400
+    return response
+
+
+@projects_blueprint.route('/request_password_reset', methods=['POST'])
+def request_password_reset():
+    form = PasswordResetRequestForm(request.form)
+    if form.validate_on_submit():
+        user = User.get_with_first('email', form.email.data)
+        if user is None:
+            response = jsonify(data={'danger': 'That user does not exist'})
+            response.status_code = 400
+            return response
+        else:
+            email = user.email
+            token = generate_confirmation_token(email=email)
+            reset_url = url_for('projects.reset_password',
+                                token=token, _external=True)
+            html = render_template('projects/email/reset_password.html',
+                                   email=email,
+                                   reset_password_url=reset_url)
+            msg = Message(subject='{} Reset Password'.format(
+                config.get('PROJECTS', 'title')),
+                html=html,
+                recipients=[email],
+                sender=config.get('MAIL', 'username'))
+            mail.send(msg)
+            return jsonify(
+                data={'success': 'A password reset link has been sent to {}'
+                      .format(email)})
+    response = jsonify(data={'danger': ', '.join(
+        ["{} - {}".format(attr, msg) for attr, errors in form.errors.items()
+         for msg in errors])})
     response.status_code = 400
     return response
 
@@ -299,7 +338,6 @@ def tag_search(tag):
     tags = Project.get_top_with('tags')
     if form.validate():
         entities = Project.get_with_search('tags', form.tag.data)
-
     return render_template('projects/projects.html', tags=list(tags.keys()),
                            objects=entities,
                            form=form)

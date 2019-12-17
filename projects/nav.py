@@ -7,9 +7,9 @@ from projects import nav
 @nav.navigation()
 def nav_bar():
     navbar = list(Navbar(
-        View('{} Projects'.format(config.get('PROJECTS', 'title')),
-             'projects.projects'),
-        View('Projects', 'projects.projects'),
+        View('{}'.format(config.get('PROJECTS', 'title')),
+             '.projects'),
+        View('Projects', '.projects'),
     ).items)
     if current_user.is_authenticated:
         navbar.extend([
@@ -22,5 +22,5 @@ def nav_bar():
             View('Login', 'projects.login'),
         ])
 
-    return Navbar('{} Projects'.format(config.get('PROJECTS', 'title')),
+    return Navbar('{}'.format(config.get('PROJECTS', 'title')),
                   *navbar)
