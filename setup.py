@@ -3,13 +3,16 @@ import os
 from setuptools import find_packages
 from distutils.core import setup
 
-cur_dir = os.path.abspath(os.path.dirname(__file__))
-
+here = os.path.dirname(__file__)
 long_description = open('README.rst').read()
+
+version_ns = {}
+with open(os.path.join(here, 'version.py')) as f:
+    exec(f.read(), {}, version_ns)
 
 setup(
     name='projects-site',
-    version='0.0.6',
+    version=version_ns['__version__'],
     long_description=long_description,
     description="""
                 A website template for hosting project
