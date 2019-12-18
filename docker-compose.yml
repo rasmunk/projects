@@ -8,3 +8,4 @@ services:
       - "80:80/tcp"
     volumes:
       - ./persistence:/var/projects/persistence:rw
+      - ./res:/var/projects/res:ro

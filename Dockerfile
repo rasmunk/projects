@@ -34,9 +34,7 @@ RUN a2dissite 000-default.conf && \
     a2enmod rewrite
 
 # Prepare WSGI launcher script
-COPY ./projects $PROJECTS_DIR/projects
 COPY ./res $PROJECTS_DIR/res
-COPY ./projects_base $PROJECTS_DIR/projects_base
 COPY ./apache/app.wsgi $PROJECTS_DIR/wsgi/
 COPY ./run.py $PROJECTS_DIR/
 RUN mkdir -p $PROJECTS_DIR/persistence && \

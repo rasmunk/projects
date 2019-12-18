@@ -11,3 +11,5 @@ Flask-Mail>=0.9.*
 flask-nav>=0.6.*
 bcrypt>=3.1.*
 configparser>=4.0.*
+six>=1.13.*
+cffi>=1.13.*
