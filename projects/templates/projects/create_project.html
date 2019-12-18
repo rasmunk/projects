@@ -1,5 +1,26 @@
-{% extends "projects/_projects_base.html" %}
+{% extends "base/create.html" %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('projects.static', filename='nbi_projects_style.css') }}">
+    <script type="text/javascript"
+            src="{{ url_for('projects.static', filename='projects.js') }}">
+    </script>
+
+{% endblock %}
+
+{% block navbar %}
+    <div class="container-full">
+        <div class="banner">
+            <img src="{{ url_for('projects.static',
+             filename='images/bohrium_logo.png') }}">
+        </div>
+    </div>
+    {{ super() }}
+{% endblock %}
+
 {% block content %}
     {% set item_type='Project' %}
-    {% include "base/create.html" %}
+    {{ super() }}
 {% endblock %}

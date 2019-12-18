@@ -20,7 +20,7 @@ from projects.helpers import generate_confirmation_token, confirm_token
 # Routes
 @projects_blueprint.route('/')
 @projects_blueprint.route('/projects', methods=['GET'])
-def projects(attr):
+def projects():
     form = TagsSearchForm()
     entities = Project.get_all()
     tags = Project.get_top_with('tags', num=10)

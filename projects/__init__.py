@@ -9,7 +9,7 @@ from flask_mail import Mail
 from flask_nav import Nav
 from projects_base.base import base_blueprint
 from projects.models import User
-from projects.forms import ProjectFormManager
+from projects.forms import ProjectFormManager, DefaultProjectForm
 from projects.conf import config
 
 app = Flask(__name__)
