@@ -8,17 +8,17 @@ install:
 - pip install -r requirements.txt
 - python setup.py install
 script:
-  - python setup.py check -rms
-  - flake8
-  - pytest
+- python setup.py check -rms
+- flake8
+- pytest
 deploy:
   distributions: sdist bdist_wheel
   provider: pypi
   skip_existing: true
   skip_cleanup: true
-  user: rasmunk
-  password:
-    secure: Q8YazcHMVRtA56TowbhpyevLwodLeIyfahpUy2VB0VBe1wHo3Iw95/Vj7Ow8qryYvQKfCEciZBlHK/B5S/2xvWmijuNgEa4NXS9+gviWPXl6ZY2JpP3a+VNgYk5Rya1XCFuzEAShVyiT0SYBW3KygpxGngop3I7gK+0Gl8PU/sUzkl3THwjNhDKd4196PS3fJ04sBB5ry9VkhV3F4d9AanlnFox1sMy6EmZzZZqRChMOX+BvStBPrHpjsPB0ICQX+rskcyy7lIDIMLqfw2A5UHoTt6eN4b2gvA5VG4rWk3ZfehTkosYQVz763Chgr2/GXTEfvhBBo0AyBeMQHuJ+S0W4mllwgKMaMp6SFmHvOSAsQDnRmHYpuTfz07EQt0cDBhd41zHbf+74rjrw3aRFqvspq1FukRgIN4RHdYOOY2ANlSY7yzZBqYL9x/kTB9OO4z5bjVFcbdOwgAQRMqhmFVwBbf93nxrb6hx6Uj70WFY6DnETf0Rs6S07maprcQS2gUzIpvH2Jyrd7NEcYmT8UrvkTT7cY0gEW5cY6KFNnsF99Jtluxg85O1+BYmpM9XfzfuEbW0aGvmwsBh32eTk4iv5PYebCwBMbgEDPMwgiydfpSxqbz81WCaib1Tqlnd0m8pzULtFx4vlLB7VgsVlR5u4hBuMHVOaqrHfnU43sEw=
+  user: __token__
   on:
     tags: true
     branch: master
+  password:
+    secure: EtotYlyTesfh6p+ln9nWtUB5eHMJQbTCqfxXZuji9FqzQ0gmrrSsuDMAKLD7wpErRJvDbD9FgE9GpmGBzq/nB2P8YAMT+cfdw1MTKy//mCPpImKjiMHccLDayEbOn3OEoFOe42SelYzX9GWenZQTAJKkPzBL3W/C7jTzp4LOjXOvm2TLVuc2dLpv/pVbHO47kL8/slpYbNMOwthQ1kWWFtz5OtO6BNKf/1/1q8EX0z2oRPMc+Fn/09amtzhoTmMp8Kg/geqSTbrgBrCJ5X8sYvMMBh7t0L38hDEfMHtS6tM3TymndJ2JaXIlR+rvnGvcInVHBQCxltNSmNqWZnXx8Qj+BdRHWXIHuYSwmgDC5Lh9BRmUkTfkPtnT+KAk/YeBiIFfVhmd1lS/n3J999/E0mYnd4Q0pWp8BHzF0oQ6XUzoiPVAK9jYULqq2lyvOYitYTEFjP5cFVZY+S4Eo6bD1wSi2z/kBiGqXObjbimuBFYOrq8dNMA6B2uqnlnhoJ5nV8GGW1ph5/o8kfwWevb9NKk/2TazPdTk8BDp1+tteYgejUuz9sSKtwVZCiS/8nUW8iOJ4D8Utu685ofRhpecoBkUIQl1G9Fa1S+m58RFfVd6M/f2T13g3x9nNiK11n0y7q8JFt1iB27FDxM9a6hYoF97SdKyuu2TE20/pldm0+8=
