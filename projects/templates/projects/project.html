@@ -20,8 +20,5 @@
     {{ super() }}
 {% endblock %}
 
-{% block content %}
-    {% set hidden_properties_list = ['_id', '_type', 'name','description',
+{% set hidden_properties_list = ['_id', '_type', 'name','description',
                                      'image', 'csrf_token'] %}
-    {{ super() }}
-{% endblock %}f
