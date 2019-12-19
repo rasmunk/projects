@@ -33,16 +33,17 @@ project_manager = ProjectFormManager()
 # Onetime authentication reset token salt
 app.config['ONETIME_TOKEN_SALT'] = os.urandom(24)
 
-# Email application server
-app.config['MAIL_SERVER'] = config.get('MAIL', 'server')
-app.config['MAIL_PORT'] = config.get('MAIL', 'port')
-app.config['MAIL_USE_TLS'] = bool(config.get('MAIL', 'use_tls'))
-app.config['MAIL_USE_SSL'] = bool(config.get('MAIL', 'use_ssl'))
-app.config['MAIL_USERNAME'] = config.get('MAIL', 'username')
-app.config['MAIL_PASSWORD'] = config.get('MAIL', 'password')
-
 # Application ADMINS_EMAIL
-app.config['ADMINS_EMAIL'] = config.get('MAIL', 'admins').split(',')
+app.config['ADMINS_EMAIL'] = os.environ['ADMINS_EMAIL'].split(',')
+
+# Email application server
+app.config['MAIL_SERVER'] = os.environ['MAIL_SERVER']
+app.config['MAIL_PORT'] = os.environ['MAIL_PORT']
+app.config['MAIL_USE_TLS'] = bool(os.environ['MAIL_USE_TLS'])
+app.config['MAIL_USE_SSL'] = False if os.environ['MAIL_USE_SSL'] == 'False'\
+                                   else True
+app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
+app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
 
 # Connect mail
 mail = Mail(app)

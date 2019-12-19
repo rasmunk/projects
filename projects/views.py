@@ -7,7 +7,7 @@ from flask_mail import Message
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
 from bcrypt import hashpw, gensalt
-from projects import mail, project_manager, projects_blueprint
+from projects import mail, project_manager, projects_blueprint, app
 from projects.conf import config
 from projects.models import Project, User
 from projects.forms import AuthRequestForm, PasswordResetRequestForm, \
@@ -191,8 +191,8 @@ def request_auth():
                           + " requests {} Projects access".format(
                               config.get('PROJECTS', 'title')),
                           html=html,
-                          recipients=config.get('MAIL', 'admins'),
-                          sender=config.get('MAIL', 'username'))
+                          recipients=app.config['ADMINS_EMAIL'],
+                          sender=app.config['MAIL_USERNAME'])
             try:
                 mail.send(msg)
             except TimeoutError:
@@ -235,7 +235,7 @@ def request_password_reset():
                 config.get('PROJECTS', 'title')),
                 html=html,
                 recipients=[email],
-                sender=config.get('MAIL', 'username'))
+                sender=app.config['MAIL_USERNAME'])
             mail.send(msg)
             return jsonify(
                 data={'success': 'A password reset link has been sent to {}'
@@ -277,7 +277,7 @@ def approve_auth(token):
                 config.get('PROJECTS', 'title')),
                 html=html,
                 recipients=[email],
-                sender=config.get('MAIL', 'username'))
+                sender=app.config['MAIL_USERNAME'])
             mail.send(msg)
             flash("The account {} has been approved and created".format(email),
                   'success')

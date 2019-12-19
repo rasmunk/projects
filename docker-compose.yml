@@ -9,3 +9,4 @@ services:
     volumes:
       - ./persistence:/var/projects/persistence:rw
       - ./res:/var/projects/res:ro
+      - ./res/projects-envvars.py:/etc/projects/projects-envvars.py:rw

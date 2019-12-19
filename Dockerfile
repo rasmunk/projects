@@ -42,6 +42,13 @@ RUN mkdir -p $PROJECTS_DIR/persistence && \
     chmod 775 -R $PROJECTS_DIR/persistence && \
     chmod 2755 -R $PROJECTS_DIR/wsgi
 
+ENV PROJECTS_ENV_DIR=/etc/projects
+
+# Install the envvars script, code and cleanup
+RUN mkdir -p $PROJECTS_ENV_DIR && \
+    echo "export q ${PROJECTS_ENV_DIR}" >> /etc/apache2/envars
+COPY ./projects-envvars-templates.py $PROJECTS_ENV_DIR/projects-envvars.py
+
 # Copy in the source code
 COPY . /app
 WORKDIR /app

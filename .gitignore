@@ -108,3 +108,6 @@ venv.bak/
 
 # persistence data
 persistence/
+
+# envvars config
+res/projects-envvars.py
