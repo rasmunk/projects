@@ -41,7 +41,7 @@ app.config['MAIL_SERVER'] = os.environ['MAIL_SERVER']
 app.config['MAIL_PORT'] = os.environ['MAIL_PORT']
 app.config['MAIL_USE_TLS'] = bool(os.environ['MAIL_USE_TLS'])
 app.config['MAIL_USE_SSL'] = False if os.environ['MAIL_USE_SSL'] == 'False'\
-                                   else True
+    else True
 app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
 app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
 
@@ -53,8 +53,8 @@ nav = Nav()
 nav.init_app(app)
 import projects.nav
 import projects.views
-app.register_blueprint(projects_blueprint)
 
+app.register_blueprint(projects_blueprint)
 
 # If debug option
 if app.debug:
