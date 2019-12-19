@@ -34,16 +34,42 @@ project_manager = ProjectFormManager()
 app.config['ONETIME_TOKEN_SALT'] = os.urandom(24)
 
 # Application ADMINS_EMAIL
-app.config['ADMINS_EMAIL'] = os.environ['ADMINS_EMAIL'].split(',')
+if 'ADMINS_EMAIL' in os.environ:
+    app.config['ADMINS_EMAIL'] = os.environ['ADMINS_EMAIL'].split(',')
+else:
+    app.config['ADMINS_EMAIL'] = config.get('MAIL', 'admins')
 
 # Email application server
-app.config['MAIL_SERVER'] = os.environ['MAIL_SERVER']
-app.config['MAIL_PORT'] = os.environ['MAIL_PORT']
-app.config['MAIL_USE_TLS'] = bool(os.environ['MAIL_USE_TLS'])
-app.config['MAIL_USE_SSL'] = False if os.environ['MAIL_USE_SSL'] == 'False'\
-    else True
-app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
-app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
+if 'MAIL_SERVER' in os.environ:
+    app.config['MAIL_SERVER'] = os.environ['MAIL_SERVER']
+else:
+    app.config['MAIL_SERVER'] = config.get('MAIL', 'server')
+
+if 'MAIL_PORT' in os.environ:
+    app.config['MAIL_PORT'] = os.environ['MAIL_PORT']
+else:
+    app.config['MAIL_PORT'] = config.get('MAIL', 'port')
+
+if 'MAIL_USE_TLS' in os.environ:
+    app.config['MAIL_USE_TLS'] = bool(os.environ['MAIL_USE_TLS'])
+else:
+    app.config['MAIL_USE_TLS'] = bool(config.get('MAIL', 'use_tls'))
+
+if 'MAIL_USE_SSL' in os.environ:
+    app.config['MAIL_USE_SSL'] = False \
+        if os.environ['MAIL_USE_SSL'] == 'False' else True
+else:
+    app.config['MAIL_USE_SSL'] = bool(config.get('MAIL', 'use_ssl'))
+
+if 'MAIL_USERNAME' in os.environ:
+    app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
+else:
+    app.config['MAIL_USERNAME'] = config.get('MAIL', 'username')
+
+if 'MAIL_PASSWORD' in os.environ:
+    app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
+else:
+    app.config['MAIL_PASSWORD'] = config.get('MAIL', 'password')
 
 # Connect mail
 mail = Mail(app)
@@ -53,8 +79,8 @@ nav = Nav()
 nav.init_app(app)
 import projects.nav
 import projects.views
-
 app.register_blueprint(projects_blueprint)
+
 
 # If debug option
 if app.debug:
