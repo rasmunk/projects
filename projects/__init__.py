@@ -33,6 +33,7 @@ project_manager = ProjectFormManager()
 # Onetime authentication reset token salt
 app.config['ONETIME_TOKEN_SALT'] = os.urandom(24)
 
+# TODO -> fix hack at some point
 # Application ADMINS_EMAIL
 if 'ADMINS_EMAIL' in os.environ:
     app.config['ADMINS_EMAIL'] = os.environ['ADMINS_EMAIL'].split(',')
