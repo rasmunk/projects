@@ -181,13 +181,16 @@ def request_auth():
         # Send confirmation token
         user = User.get_with_first('email', form.email.data)
         if user is None:
-            token = generate_confirmation_token(data=form.email.data)
+            data = form.data
+            # Remove csrf_token
+            del data['csrf_token']
+            token = generate_confirmation_token(data=form.data)
             confirm_url = url_for('projects.approve_auth',
                                   token=token, _external=True)
             html = render_template('projects/email/activate_user.html',
-                                   email=form.email.data,
+                                   email=form.data,
                                    confirm_url=confirm_url)
-            msg = Message(subject=form.email.data
+            msg = Message(subject=form.data
                           + " requests {} Projects access".format(
                               config.get('PROJECTS', 'title')),
                           html=html,
@@ -250,37 +253,43 @@ def request_password_reset():
 # Accepts approval from admin's
 @projects_blueprint.route('/approve_auth/<token>')
 def approve_auth(token):
-    email = confirm_token(token)
-    if email is False:
+    data = confirm_token(token)
+    if data is False:
         flash('Confirmation failed, either it is invalid or expired.',
               'danger')
-    else:
-        user = User.get_with_first('email', email)
-        if user is not None:
-            flash('That email has already been registered')
-        else:
-            # Setup
-            user = User(email=email,
-                        password=hashpw(os.urandom(24), gensalt()),
-                        projects=[], is_active=False, is_authenticated=False,
-                        is_anonymous=False,
-                        confirmed_on=datetime.datetime.now())
-            user.save()
+        return redirect(url_for('projects.projects'))
 
-            token = generate_confirmation_token(data=email)
-            reset_url = url_for('projects.reset_password',
-                                token=token, _external=True)
-            html = render_template('projects/email/reset_password.html',
-                                   email=email,
-                                   reset_password_url=reset_url)
-            msg = Message(subject='{} Projects Account approval'.format(
-                config.get('PROJECTS', 'title')),
-                html=html,
-                recipients=[email],
-                sender=app.config['MAIL_USERNAME'])
-            mail.send(msg)
-            flash("The account {} has been approved and created".format(email),
-                  'success')
+    if 'email' not in data:
+        flash('Confirmation failed, required email is not present', 'danger')
+        return redirect(url_for('projects.projects'))
+
+    user = User.get_with_first('email', data['email'])
+    if user is not None:
+        flash('That email has already been registered')
+        return redirect(url_for('projects.projects'))
+    else:
+        # Setup
+        user = User(email=data['email'],
+                    password=hashpw(os.urandom(24), gensalt()),
+                    projects=[], is_active=False, is_authenticated=False,
+                    is_anonymous=False,
+                    confirmed_on=datetime.datetime.now())
+        user.save()
+
+        token = generate_confirmation_token(data=data['email'])
+        reset_url = url_for('projects.reset_password',
+                            token=token, _external=True)
+        html = render_template('projects/email/reset_password.html',
+                               email=data['email'],
+                               reset_password_url=reset_url)
+        msg = Message(subject='{} Projects Account approval'.format(
+            config.get('PROJECTS', 'title')),
+            html=html,
+            recipients=[data['email']],
+            sender=app.config['MAIL_USERNAME'])
+        mail.send(msg)
+        flash("The account {} has been approved and created".format(
+            data['email']), 'success')
     return redirect(url_for('projects.projects'))
 
 
@@ -291,22 +300,22 @@ def reset_password(token):
         flash(
             'Attempted password reset failed,'
             ' the request is either invalid or expired', 'danger')
-    else:
-        form = PasswordResetForm(request.form)
-        form.email.data = email
-        if form.validate_on_submit():
-            user = User.get_with_first('email', email)
-            user.is_active = True
-            user.is_authenticated = True
-            user.is_anonymous = False
-            user.email = email
-            user.password = hashpw(bytes(form.password.data, 'utf-8'),
-                                   gensalt())
-            user.save()
-            flash('Your password has now been updated', 'success')
-            return redirect(url_for('projects.projects'))
-        return render_template('projects/reset_password_form.html', form=form)
-    return redirect(url_for('projects.login'))
+        return redirect(url_for('projects.login'))
+
+    form = PasswordResetForm(request.form)
+    form.email.data = email
+    if form.validate_on_submit():
+        user = User.get_with_first('email', email)
+        user.is_active = True
+        user.is_authenticated = True
+        user.is_anonymous = False
+        user.email = email
+        user.password = hashpw(bytes(form.password.data, 'utf-8'),
+                               gensalt())
+        user.save()
+        flash('Your password has now been updated', 'success')
+        return redirect(url_for('projects.projects'))
+    return render_template('projects/reset_password_form.html', form=form)
 
 
 # @app.route('/login', methods=['GET', 'POST'])
