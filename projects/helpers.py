@@ -23,21 +23,21 @@ def load_user(user_id):
     return user
 
 
-def generate_confirmation_token(email):
+def generate_confirmation_token(data):
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-    return serializer.dumps(email, salt=app.config['ONETIME_TOKEN_SALT'])
+    return serializer.dumps(data, salt=app.config['ONETIME_TOKEN_SALT'])
 
 
 # A token is valid for a day
 def confirm_token(token, expiration=86400):
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     try:
-        email = serializer.loads(token,
-                                 salt=app.config['ONETIME_TOKEN_SALT'],
-                                 max_age=expiration)
+        data = serializer.loads(token,
+                                salt=app.config['ONETIME_TOKEN_SALT'],
+                                max_age=expiration)
     except BadSignature:
         return False
-    return email
+    return data
 
 
 def unique_name_encoding(name):

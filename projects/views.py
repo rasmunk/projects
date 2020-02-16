@@ -181,7 +181,7 @@ def request_auth():
         # Send confirmation token
         user = User.get_with_first('email', form.email.data)
         if user is None:
-            token = generate_confirmation_token(email=form.email.data)
+            token = generate_confirmation_token(data=form.email.data)
             confirm_url = url_for('projects.approve_auth',
                                   token=token, _external=True)
             html = render_template('projects/email/activate_user.html',
@@ -225,7 +225,7 @@ def request_password_reset():
             return response
         else:
             email = user.email
-            token = generate_confirmation_token(email=email)
+            token = generate_confirmation_token(data=email)
             reset_url = url_for('projects.reset_password',
                                 token=token, _external=True)
             html = render_template('projects/email/reset_password.html',
@@ -267,7 +267,7 @@ def approve_auth(token):
                         confirmed_on=datetime.datetime.now())
             user.save()
 
-            token = generate_confirmation_token(email=email)
+            token = generate_confirmation_token(data=email)
             reset_url = url_for('projects.reset_password',
                                 token=token, _external=True)
             html = render_template('projects/email/reset_password.html',
