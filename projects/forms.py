@@ -63,7 +63,7 @@ class PasswordResetRequestForm(FlaskForm):
                message=config.get('PROJECTS', 'auth_regex_msg'))])
 
 
-class PasswordResetForm(AuthRequestForm):
+class PasswordResetForm(FlaskForm):
     password = PasswordField('Password', validators=[
         DataRequired(), Length(min=8),
         EqualTo('confirm', message='Passwords must match')])

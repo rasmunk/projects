@@ -304,7 +304,6 @@ def reset_password(token):
         return redirect(url_for('projects.login'))
 
     form = PasswordResetForm(request.form)
-    form.email.data = email
     if form.validate_on_submit():
         user = User.get_with_first('email', email)
         user.is_active = True
@@ -316,7 +315,8 @@ def reset_password(token):
         user.save()
         flash('Your password has now been updated', 'success')
         return redirect(url_for('projects.projects'))
-    return render_template('projects/reset_password_form.html', form=form)
+    return render_template('projects/reset_password_form.html', form=form,
+                           email=email)
 
 
 # @app.route('/login', methods=['GET', 'POST'])
