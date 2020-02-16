@@ -52,12 +52,14 @@ else:
 if 'MAIL_USE_TLS' in os.environ:
     app.config['MAIL_USE_TLS'] = bool(os.environ['MAIL_USE_TLS'])
 else:
+    # NOTE!, remember that if any value is set for use_tls it is set to True
     app.config['MAIL_USE_TLS'] = bool(config.get('MAIL', 'use_tls'))
 
 if 'MAIL_USE_SSL' in os.environ:
     app.config['MAIL_USE_SSL'] = False \
         if os.environ['MAIL_USE_SSL'] == 'False' else True
 else:
+    # NOTE!, remember that if any value is set for use_ssl it is set to True
     app.config['MAIL_USE_SSL'] = bool(config.get('MAIL', 'use_ssl'))
 
 if 'MAIL_USERNAME' in os.environ:

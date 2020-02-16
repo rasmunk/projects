@@ -184,17 +184,18 @@ def request_auth():
             data = form.data
             # Remove csrf_token
             del data['csrf_token']
+            subject = "{}".format(form.email.data)
+            subject = subject + " requests {} access".format(
+                config.get('PROJECTS', 'title'))
             token = generate_confirmation_token(data=form.data)
             confirm_url = url_for('projects.approve_auth',
                                   token=token, _external=True)
             html = render_template('projects/email/activate_user.html',
                                    email=form.data,
                                    confirm_url=confirm_url)
-            msg = Message(subject=form.data
-                          + " requests {} Projects access".format(
-                              config.get('PROJECTS', 'title')),
+            msg = Message(subject=subject,
                           html=html,
-                          recipients=app.config['ADMINS_EMAIL'],
+                          recipients=[app.config['ADMINS_EMAIL']],
                           sender=app.config['MAIL_USERNAME'])
             try:
                 mail.send(msg)
@@ -242,7 +243,7 @@ def request_password_reset():
             mail.send(msg)
             return jsonify(
                 data={'success': 'A password reset link has been sent to {}'
-                      .format(email)})
+                    .format(email)})
     response = jsonify(data={'danger': ', '.join(
         ["{} - {}".format(attr, msg) for attr, errors in form.errors.items()
          for msg in errors])})
