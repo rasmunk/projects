@@ -1,6 +1,4 @@
 import os
-import datetime
-from bcrypt import hashpw, gensalt
 from flask import Flask, Blueprint
 from flask_wtf.csrf import CSRFProtect
 from flask_bootstrap import Bootstrap
@@ -81,17 +79,3 @@ nav.init_app(app)
 import projects.nav
 import projects.views
 app.register_blueprint(projects_blueprint)
-
-
-# If debug option
-if app.debug:
-    # Implement test user
-    user = User.get_with_first('email', 'test@nbi.ku.dk')
-    if user is None:
-        user = User(email='test@nbi.ku.dk',
-                    password=hashpw(bytes("test", 'utf-8'),
-                                    gensalt()),
-                    projects=[], is_active=True,
-                    is_authenticated=True, is_anonymous=False,
-                    confirmed_on=datetime.datetime.now())
-        user.save()
