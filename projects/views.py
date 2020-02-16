@@ -212,8 +212,8 @@ def request_auth():
             response.status_code = 400
             return response
     response = jsonify(data={'danger': ', '.join(
-        ["{} - {}".format(attr, msg) for attr, errors in form.errors.items()
-         for msg in errors])})
+        ["{} - {}".format(attr, r_msg) for attr, errors in form.errors.items()
+         for r_msg in errors])})
     response.status_code = 400
     return response
 
@@ -243,10 +243,10 @@ def request_password_reset():
             mail.send(msg)
             return jsonify(
                 data={'success': 'A password reset link has been sent to {}'
-                    .format(email)})
+                      .format(email)})
     response = jsonify(data={'danger': ', '.join(
-        ["{} - {}".format(attr, msg) for attr, errors in form.errors.items()
-         for msg in errors])})
+        ["{} - {}".format(attr, r_msg) for attr, errors in form.errors.items()
+         for r_msg in errors])})
     response.status_code = 400
     return response
 
