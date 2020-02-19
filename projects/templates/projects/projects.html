@@ -21,8 +21,13 @@
 {% endblock %}
 
 {% block mid_grid_section %}
+    {% set static_link = 'projects_base.static' %}
+    {% set object_tag_link = 'projects.tag_search' %}
     {% set search_description = 'This field can be used to search for projects
  by using their associated tags' %}
     {% include 'base/search_section.html' %}
     {% include 'base/highlight_tags_section.html' %}
 {% endblock %}
+
+{% set object_link = 'projects.show' %}
+{% set object_image_link = 'projects_base.img_render' %}
