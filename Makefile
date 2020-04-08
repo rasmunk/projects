@@ -1,6 +1,7 @@
 OWNER=nielsbohr
 IMAGE=projects-site
 TAG=edge
+ARGS=
 
 all: clean build push
 
@@ -9,10 +10,10 @@ init:
 	chgrp 33 persistence
 
 build:
-	docker build -t ${OWNER}/${IMAGE}:${TAG} .
+	docker build -t ${OWNER}/${IMAGE}:${TAG} ${ARGS} .
 
 build-no-cache:
-	docker build --no-cache -t ${OWNER}/${IMAGE}:${TAG} .
+	docker build --no-cache -t ${OWNER}/${IMAGE}:${TAG} ${ARGS} .
 
 clean:
 	rm -fr persistence
