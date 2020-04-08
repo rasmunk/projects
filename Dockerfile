@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install --no-install-recommends -yq \
     tzdata \
     ntp \
     ntpdate \
+    vim \
+    nano \
     supervisor && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -46,7 +48,7 @@ ENV PROJECTS_ENV_DIR=/etc/projects
 
 # Install the envvars script, code and cleanup
 RUN mkdir -p $PROJECTS_ENV_DIR && \
-    echo "export q ${PROJECTS_ENV_DIR}" >> /etc/apache2/envars
+    echo "export ${PROJECTS_ENV_DIR}" >> /etc/apache2/envars
 COPY ./projects-envvars-templates.py $PROJECTS_ENV_DIR/projects-envvars.py
 
 # Copy in the source code
@@ -66,8 +68,14 @@ WORKDIR $PROJECTS_DIR
 
 EXPOSE 80
 
-# Prepare supervisord
-RUN mkdir -p /var/log/supervisor
-# Insert supervisord config -> handles the startup procedure for the image
+# Ensure that the supervisor directories are there
+RUN mkdir -p /var/log/supervisor && \
+    mkdir -p /var/run/supervisor
+
+RUN chown www-data:www-data /var/log/supervisor && \
+    chown www-data:www-data /var/run/supervisor
+
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Run supervisord as www-data
 CMD ["/usr/bin/supervisord"]

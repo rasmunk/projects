@@ -8,10 +8,10 @@ services:
     container_name: projects
     environment:
       FLASK_DEBUG: 1
+      FLASK_APP: projects
+      FLASK_ENV: development
     ports:
-      - "80:80/tcp"
+      - "8080:80"
     volumes:
       - ./persistence:/var/projects/persistence:rw
-      - ./res/config.ini:/var/projects/res/config.ini:ro
-      - ./res/projects-envvars.py:/etc/projects/projects-envvars.py:ro
-    command: python3 /var/projects/run.py --debug --port 80
+      - ./res:/etc/projects/res:ro

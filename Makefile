@@ -12,9 +12,6 @@ init:
 build:
 	docker build -t ${OWNER}/${IMAGE}:${TAG} ${ARGS} .
 
-build-no-cache:
-	docker build --no-cache -t ${OWNER}/${IMAGE}:${TAG} ${ARGS} .
-
 clean:
 	rm -fr persistence
 	docker rmi -f ${OWNER}/${IMAGE}:${TAG}
