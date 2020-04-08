@@ -111,3 +111,6 @@ persistence/
 
 # envvars config
 res/projects-envvars.py
+
+# ignore vscode
+.vscode/
