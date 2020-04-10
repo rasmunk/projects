@@ -24,7 +24,7 @@ Bootstrap(app)
 # Login Manager
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'
+login_manager.login_view = 'projects.login'
 
 project_manager = ProjectFormManager()
 

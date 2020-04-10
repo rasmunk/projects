@@ -8,7 +8,7 @@ all: clean build push
 
 init:
 	mkdir -m 770 -p persistence
-	chown 33 -R persistence
+	chown 33:33 -R persistence
 
 build:
 	docker build -t ${OWNER}/${IMAGE}:${TAG} --build-arg SERVER_NAME=${SERVER_NAME} \
