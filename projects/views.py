@@ -19,7 +19,7 @@ from projects.helpers import generate_confirmation_token, confirm_token
 
 # Routes
 @projects_blueprint.route('/')
-@projects_blueprint.route('/projects', methods=['GET'])
+@projects_blueprint.route('/index', methods=['GET'])
 def projects():
     form = TagsSearchForm()
     entities = Project.get_all()

@@ -1,16 +1,19 @@
 OWNER=nielsbohr
-IMAGE=projects-site
+APP_NAME=projects
+IMAGE=${APP_NAME}-site
 TAG=edge
-ARGS=
+SERVER_NAME=projects.escience.dk
 
 all: clean build push
 
 init:
-	mkdir -m775 -p persistence
-	chgrp 33 persistence
+	mkdir -m 770 -p persistence
+	chown 33 -R persistence
 
 build:
-	docker build -t ${OWNER}/${IMAGE}:${TAG} ${ARGS} .
+	docker build -t ${OWNER}/${IMAGE}:${TAG} --build-arg SERVER_NAME=${SERVER_NAME} \
+	                                         --build-arg APP_NAME=${APP_NAME} \
+											 .
 
 clean:
 	rm -fr persistence

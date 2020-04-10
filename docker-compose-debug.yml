@@ -6,12 +6,9 @@ services:
   web:
     image: nielsbohr/projects-site:edge
     container_name: projects
-    environment:
-      FLASK_DEBUG: 1
-      FLASK_APP: projects
-      FLASK_ENV: development
     ports:
-      - "8080:80"
+      - "80:80/tcp"
     volumes:
       - ./persistence:/var/projects/persistence:rw
       - ./res:/etc/projects/res:ro
+    command: su -s /bin/bash -c 'authbind python3 run.py --debug --port 80' www-data

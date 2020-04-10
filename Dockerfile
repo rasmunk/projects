@@ -2,8 +2,12 @@
 FROM ubuntu:latest
 # Don't prompt tzdata
 ENV DEBIAN_FRONTEND=noninteractive
-ARG SERVERNAME=projects.escience.dk
-ENV SERVERNAME=$SERVERNAME
+ARG SERVER_NAME=projects.escience.dk
+ARG APP_NAME=projects
+ARG APP_DIR=/var/${APP_NAME}
+
+ENV SERVERNAME=${SERVER_NAME}
+ENV APP_DIR=${APP_DIR}
 
 RUN apt-get update && apt-get install --no-install-recommends -yq \
     apache2 \
@@ -26,33 +30,34 @@ RUN apt-get update && apt-get install --no-install-recommends -yq \
 
 RUN mkdir -p /var/run/apache2
 
-ARG PROJECTS_DIR=/var/projects
-
 # Setup configuration
 # Also enable wsgi and header modules
-COPY apache/apache2-http.conf /etc/apache2/sites-available/projects.conf
+COPY apache/apache2-http.conf /etc/apache2/sites-available/${APP_NAME}.conf
 RUN a2dissite 000-default.conf && \
-    a2ensite projects.conf && \
+    a2ensite ${APP_NAME}.conf && \
     a2enmod wsgi && \
     a2enmod headers && \
     a2enmod ssl && \
     a2enmod rewrite
 
+RUN mkdir ${APP_DIR}
 # Prepare WSGI launcher script
-COPY ./res $PROJECTS_DIR/res
-COPY ./apache/app.wsgi $PROJECTS_DIR/wsgi/
-COPY ./run.py $PROJECTS_DIR/
-RUN mkdir -p $PROJECTS_DIR/persistence && \
-    chown root:www-data $PROJECTS_DIR/persistence && \
-    chmod 775 -R $PROJECTS_DIR/persistence && \
-    chmod 2755 -R $PROJECTS_DIR/wsgi
+COPY ./res ${APP_DIR}/res
+COPY ./apache/app.wsgi ${APP_DIR}/wsgi/
+COPY ./run.py ${APP_DIR}/
+RUN mkdir -p ${APP_DIR}/persistence && \
+    chown root:www-data ${APP_DIR}/persistence && \
+    chmod 775 -R ${APP_DIR}/persistence && \
+    chmod 2755 -R ${APP_DIR}/wsgi
 
-ENV PROJECTS_ENV_DIR=/etc/projects
+ENV ENV_DIR=/etc/projects
 
 # Install the envvars script, code and cleanup
-RUN mkdir -p $PROJECTS_ENV_DIR && \
-    echo "export ${PROJECTS_ENV_DIR}" >> /etc/apache2/envars
-COPY ./projects-envvars-templates.py $PROJECTS_ENV_DIR/projects-envvars.py
+RUN mkdir -p $ENV_DIR && \
+    echo "export ENV_DIR=${ENV_DIR}" >> /etc/apache2/envvars && \
+    echo "export SERVERNAME=${SERVERNAME}" >> /etc/apache2/envvars && \
+    echo "ServerName ${SERVERNAME}" >> /etc/apache2/apache2.conf
+COPY ./envvars-templates.py $ENV_DIR/envvars.py
 
 # Copy in the source code
 COPY . /app
@@ -76,9 +81,10 @@ RUN chown www-data:adm -R /var/log/apache2 && \
     chown www-data:www-data -R /var/run/apache2
 
 RUN rm -r /app
-WORKDIR $PROJECTS_DIR
+WORKDIR ${APP_DIR}
 
 EXPOSE 80
+EXPOSE 8080
 
 # Ensure that the supervisor directories are there
 RUN mkdir -p /var/log/supervisor && \
