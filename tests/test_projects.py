@@ -4,7 +4,7 @@ from projects import app
 from projects.models import Project
 
 
-class FairTestCase(unittest.TestCase):
+class ProjectsTestCase(unittest.TestCase):
     def setUp(self):
         app.testing = True
 

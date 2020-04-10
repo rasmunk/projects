@@ -2,7 +2,7 @@
 FROM ubuntu:latest
 # Don't prompt tzdata
 ENV DEBIAN_FRONTEND=noninteractive
-ARG SERVERNAME=fair.erda.dk
+ARG SERVERNAME=projects.escience.dk
 ENV SERVERNAME=$SERVERNAME
 
 RUN apt-get update && apt-get install --no-install-recommends -yq \
