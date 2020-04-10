@@ -22,9 +22,9 @@ setup(
     author="Rasmus Munk",
     author_email="rasmus.munk@nbi.ku.dk",
     classifiers=[
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
     ],
     keywords=["Website", "Flask", "MetaData"],
     packages=find_packages(),
