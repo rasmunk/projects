@@ -2,6 +2,8 @@
 FROM ubuntu:latest
 # Don't prompt tzdata
 ENV DEBIAN_FRONTEND=noninteractive
+ARG SERVERNAME=fair.erda.dk
+ENV SERVERNAME=$SERVERNAME
 
 RUN apt-get update && apt-get install --no-install-recommends -yq \
     apache2 \
@@ -17,6 +19,7 @@ RUN apt-get update && apt-get install --no-install-recommends -yq \
     ntpdate \
     vim \
     nano \
+    authbind \
     supervisor && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -63,6 +66,15 @@ RUN pip3 install setuptools && \
     pip3 install -r tests/requirements.txt && \
     python3 setup.py install
 
+# Allow www-data to start a process that binds to :80/:443
+RUN touch /etc/authbind/byport/80 && \
+    touch /etc/authbind/byport/443 && \
+    chown www-data /etc/authbind/byport/* && \
+    chmod 500 /etc/authbind/byport/*
+
+RUN chown www-data:adm -R /var/log/apache2 && \
+    chown www-data:www-data -R /var/run/apache2
+
 RUN rm -r /app
 WORKDIR $PROJECTS_DIR
 
@@ -77,5 +89,5 @@ RUN chown www-data:www-data /var/log/supervisor && \
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Run supervisord as www-data
+# Ensure the supervisord conf uses the www-data user to launch the web server
 CMD ["/usr/bin/supervisord"]
