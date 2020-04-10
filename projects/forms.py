@@ -1,7 +1,13 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileRequired, FileAllowed
-from wtforms import StringField, TextAreaField, FileField, \
-    SelectMultipleField, widgets, PasswordField
+from wtforms import (
+    StringField,
+    TextAreaField,
+    FileField,
+    SelectMultipleField,
+    widgets,
+    PasswordField,
+)
 from wtforms.validators import DataRequired, Regexp, Email, EqualTo, Length
 from projects.conf import config
 
@@ -11,7 +17,7 @@ class MultiCheckboxField(SelectMultipleField):
     option_widget = widgets.CheckboxInput()
 
 
-class ProjectFormManager():
+class ProjectFormManager:
     form_class = None
 
     def register_form_class(self, class_name, module=None):
@@ -28,52 +34,84 @@ class ProjectFormManager():
     def get_form_class(self):
         if self.form_class is None:
             self.register_form_class(
-                config.get('PROJECTS', 'form_class'),
-                config.get('PROJECTS', 'form_module',
-                           **{'fallback': None}))
+                config.get("PROJECTS", "form_class"),
+                config.get("PROJECTS", "form_module", **{"fallback": None}),
+            )
         return self.form_class
 
 
 class DefaultProjectForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired()])
-    description = TextAreaField('Description')
-    image = FileField('Project Image', validators=[
-        FileRequired(),
-        FileAllowed(['jpg', 'png'], 'Only JPG and PNG images are allowed')
-    ])
-    tags = StringField('Tags', validators=[
-        DataRequired(),
-        Regexp(r'' + config.get('PROJECTS', 'tags_regex'),
-               message=config.get('PROJECTS', 'tags_regex_msg'))])
+    name = StringField("Name", validators=[DataRequired()])
+    description = TextAreaField("Description")
+    image = FileField(
+        "Project Image",
+        validators=[
+            FileRequired(),
+            FileAllowed(["jpg", "png"], "Only JPG and PNG images are allowed"),
+        ],
+    )
+    tags = StringField(
+        "Tags",
+        validators=[
+            DataRequired(),
+            Regexp(
+                r"" + config.get("PROJECTS", "tags_regex"),
+                message=config.get("PROJECTS", "tags_regex_msg"),
+            ),
+        ],
+    )
 
 
 class AuthRequestForm(FlaskForm):
-    email = StringField('Email', validators=[
-        DataRequired(),
-        Email(message='Invalid email address format'),
-        Regexp(r'' + config.get('PROJECTS', 'auth_regex_username'),
-               message=config.get('PROJECTS', 'auth_regex_msg'))])
+    email = StringField(
+        "Email",
+        validators=[
+            DataRequired(),
+            Email(message="Invalid email address format"),
+            Regexp(
+                r"" + config.get("PROJECTS", "auth_regex_username"),
+                message=config.get("PROJECTS", "auth_regex_msg"),
+            ),
+        ],
+    )
 
 
 class PasswordResetRequestForm(FlaskForm):
-    email = StringField('Email', validators=[
-        DataRequired(),
-        Email(message='Invalid email address format'),
-        Regexp(r'' + config.get('PROJECTS', 'auth_regex_username'),
-               message=config.get('PROJECTS', 'auth_regex_msg'))])
+    email = StringField(
+        "Email",
+        validators=[
+            DataRequired(),
+            Email(message="Invalid email address format"),
+            Regexp(
+                r"" + config.get("PROJECTS", "auth_regex_username"),
+                message=config.get("PROJECTS", "auth_regex_msg"),
+            ),
+        ],
+    )
 
 
 class PasswordResetForm(FlaskForm):
-    password = PasswordField('Password', validators=[
-        DataRequired(), Length(min=8),
-        EqualTo('confirm', message='Passwords must match')])
-    confirm = PasswordField('Repeat Password')
+    password = PasswordField(
+        "Password",
+        validators=[
+            DataRequired(),
+            Length(min=8),
+            EqualTo("confirm", message="Passwords must match"),
+        ],
+    )
+    confirm = PasswordField("Repeat Password")
 
 
 class LoginForm(FlaskForm):
-    email = StringField('Email', validators=[
-        DataRequired(),
-        Email(message='Invalid email address format'),
-        Regexp(r'' + config.get('PROJECTS', 'auth_regex_username'),
-               message=config.get('PROJECTS', 'auth_regex_msg'))])
-    password = PasswordField('Password', validators=[DataRequired()])
+    email = StringField(
+        "Email",
+        validators=[
+            DataRequired(),
+            Email(message="Invalid email address format"),
+            Regexp(
+                r"" + config.get("PROJECTS", "auth_regex_username"),
+                message=config.get("PROJECTS", "auth_regex_msg"),
+            ),
+        ],
+    )
+    password = PasswordField("Password", validators=[DataRequired()])

@@ -9,36 +9,39 @@ from projects import app
 from projects.models import Project, User
 
 
-libsum = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' \
-         ' Maecenas semper tortor justo. Vivamus pretium quis leo quis ' \
-         'posuere. In tristique orci ac orci laoreet, in imperdiet elit ' \
-         'semper. Nam id eros gravida, fringilla nisl a, laoreet nibh. ' \
-         'Mauris viverra, risus posuere pellentesque blandit, ' \
-         'ipsum augue dignissim mi, vitae consectetur magna libero eu purus.' \
-         ' Interdum et malesuada fames ac ante ipsum primis in faucibus.' \
-         ' Ut sagittis bibendum nulla, et malesuada erat ultricies vel.' \
-         ' Duis vitae nisi augue. In blandit, purus ut consectetur suscipit,' \
-         ' erat quam euismod nibh, gravida vestibulum purus velit nec libero' \
-         '. Nullam blandit auctor dolor in pretium. Nulla posuere magna non' \
-         ' neque malesuada, tempor interdum metus aliquam. Nam tincidunt' \
-         ' pellentesque congue. Duis auctor, tellus sit amet vehicula' \
-         ' tempus, nunc purus ultrices lacus, nec convallis turpis nunc id' \
-         ' purus. Cras aliquet dapibus convallis. Fusce fermentum velit enim' \
-         ', eu cursus enim fermentum at.'
+libsum = (
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+    " Maecenas semper tortor justo. Vivamus pretium quis leo quis "
+    "posuere. In tristique orci ac orci laoreet, in imperdiet elit "
+    "semper. Nam id eros gravida, fringilla nisl a, laoreet nibh. "
+    "Mauris viverra, risus posuere pellentesque blandit, "
+    "ipsum augue dignissim mi, vitae consectetur magna libero eu purus."
+    " Interdum et malesuada fames ac ante ipsum primis in faucibus."
+    " Ut sagittis bibendum nulla, et malesuada erat ultricies vel."
+    " Duis vitae nisi augue. In blandit, purus ut consectetur suscipit,"
+    " erat quam euismod nibh, gravida vestibulum purus velit nec libero"
+    ". Nullam blandit auctor dolor in pretium. Nulla posuere magna non"
+    " neque malesuada, tempor interdum metus aliquam. Nam tincidunt"
+    " pellentesque congue. Duis auctor, tellus sit amet vehicula"
+    " tempus, nunc purus ultrices lacus, nec convallis turpis nunc id"
+    " purus. Cras aliquet dapibus convallis. Fusce fermentum velit enim"
+    ", eu cursus enim fermentum at."
+)
 
 
 class Test_ProjectsTestCase(unittest.TestCase):
-
     def setUp(self):
-        app.config['TESTING'] = True
-        app.config['DEBUG'] = True
+        app.config["TESTING"] = True
+        app.config["DEBUG"] = True
         folders = {}
-        folders['DATA_FOLDER'] = app.config[
-            'DATA_FOLDER'] = os.path.join(os.getcwd(), "tests/data")
+        folders["DATA_FOLDER"] = app.config["DATA_FOLDER"] = os.path.join(
+            os.getcwd(), "tests/data"
+        )
 
-        folders['UPLOAD_FOLDER'] = app.config[
-            'UPLOAD_FOLDER'] = os.path.join(os.getcwd(), "tests/images")
-        app.config['WTF_CSRF_ENABLED'] = True
+        folders["UPLOAD_FOLDER"] = app.config["UPLOAD_FOLDER"] = os.path.join(
+            os.getcwd(), "tests/images"
+        )
+        app.config["WTF_CSRF_ENABLED"] = True
         # Create required folders for the application if they don't exist
         for _, folder in folders.items():
             try:
@@ -48,19 +51,22 @@ class Test_ProjectsTestCase(unittest.TestCase):
                 pass
 
         # Override default DB setting ->use a testing db instead of the default
-        app.config['DB'] = os.path.join(app.config['DATA_FOLDER'],
-                                        "fair_test")
-        self.username = 'test@test.com'
-        self.password = 'test'
-        user = User.get_with_first('email', self.username)
+        app.config["DB"] = os.path.join(app.config["DATA_FOLDER"], "fair_test")
+        self.username = "test@test.com"
+        self.password = "test"
+        user = User.get_with_first("email", self.username)
+        hashed_pw = hashpw(bytes(self.password, "utf-8"), gensalt())
+
         if user is None:
-            user = User(email=self.username,
-                        password=hashpw(bytes(self.password, 'utf-8'), gensalt()),
-                        datasets=[],
-                        is_active=True,
-                        is_authenticated=True,
-                        is_anonymous=False,
-                        confirmed_on=datetime.datetime.now())
+            user = User(
+                email=self.username,
+                password=hashed_pw,
+                datasets=[],
+                is_active=True,
+                is_authenticated=True,
+                is_anonymous=False,
+                confirmed_on=datetime.datetime.now(),
+            )
             user.save()
         self.user = user
 
@@ -68,10 +74,9 @@ class Test_ProjectsTestCase(unittest.TestCase):
         # Setup valid token
         self.csrf_token = None
         with self.client as client:
-            resp = client.get('/index')
+            resp = client.get("/index")
             assert resp.status_code == 200
             self.csrf_token = g.csrf_token
-
 
     def tearDown(self):
         # Clean up
@@ -81,41 +86,56 @@ class Test_ProjectsTestCase(unittest.TestCase):
     def test_register_data_render(self):
         # Auth check
         with self.client as client:
-            create_resp = client.get('/create_project', follow_redirects=True)
-            test_response = 'Please log in to access this page.'
-            self.assertIn(bytes(test_response, encoding='utf8'), create_resp.data)
+            create_resp = client.get("/create_project", follow_redirects=True)
+            test_response = "Please log in to access this page."
+            self.assertIn(bytes(test_response, encoding="utf8"), create_resp.data)
             # setup csrf_token
-            token_data = {'csrf_token': self.csrf_token}
-            login_data = {'email': self.username,
-                          'password': self.password}
+            token_data = {"csrf_token": self.csrf_token}
+            login_data = {"email": self.username, "password": self.password}
             login_data.update(token_data)
 
-            login_resp = client.post('/login', data=login_data, follow_redirects=True)
+            login_resp = client.post("/login", data=login_data, follow_redirects=True)
             self.assertEqual(login_resp.status_code, 200)
-            create_resp = client.get('create_project', data=login_data, follow_redirects=True)
+            create_resp = client.get(
+                "create_project", data=login_data, follow_redirects=True
+            )
             test_response = "Register a Project"
-            self.assertIn(bytes(test_response, encoding='utf8'), create_resp.data)
+            self.assertIn(bytes(test_response, encoding="utf8"), create_resp.data)
 
-    def register_dataset(self, name, description, doi, date, sci_area,
-                         references, tags, image, orcid, csrf_token):
-        return self.client.post('/create_project', data=dict(
-            name=name,
-            description=description,
-            doi=doi,
-            date=date,
-            sci_area=sci_area,
-            references=references,
-            tags=tags,
-            image=image,
-            orcid=orcid,
-            csrf_token=csrf_token
-        ), follow_redirects=True)
+    def register_dataset(
+        self,
+        name,
+        description,
+        doi,
+        date,
+        sci_area,
+        references,
+        tags,
+        image,
+        orcid,
+        csrf_token,
+    ):
+        return self.client.post(
+            "/create_project",
+            data=dict(
+                name=name,
+                description=description,
+                doi=doi,
+                date=date,
+                sci_area=sci_area,
+                references=references,
+                tags=tags,
+                image=image,
+                orcid=orcid,
+                csrf_token=csrf_token,
+            ),
+            follow_redirects=True,
+        )
 
     def tag_post_query(self, tag):
-        return self.client.post('/search', data=dict(
-            tag=tag,
-            csrf_token=self.csrf_token
-        ))
+        return self.client.post(
+            "/search", data=dict(tag=tag, csrf_token=self.csrf_token)
+        )
 
     def tag_get_query(self, tag):
         return self.client.get("/tag?tag=" + tag)
@@ -336,5 +356,5 @@ class Test_ProjectsTestCase(unittest.TestCase):
     #     self.assertEqual(pre_tag_data, pre_tag_import['data'])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
