@@ -13,4 +13,4 @@ bcrypt>=3.1.*
 configparser>=4.0.*
 six>=1.13.*
 cffi>=1.13.*
-black>=19.10*
+black>=19.*
