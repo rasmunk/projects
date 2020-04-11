@@ -61,7 +61,7 @@ class Test_ProjectsTestCase(unittest.TestCase):
             user = User(
                 email=self.username,
                 password=hashed_pw,
-                datasets=[],
+                projects=[],
                 is_active=True,
                 is_authenticated=True,
                 is_anonymous=False,
@@ -83,54 +83,17 @@ class Test_ProjectsTestCase(unittest.TestCase):
         Project.clear()
         self.assertTrue(len(Project.get_all()) == 0)
 
-    def test_register_data_render(self):
-        # Auth check
-        with self.client as client:
-            create_resp = client.get("/create_project", follow_redirects=True)
-            test_response = "Please log in to access this page."
-            self.assertIn(bytes(test_response, encoding="utf8"), create_resp.data)
-            # setup csrf_token
-            token_data = {"csrf_token": self.csrf_token}
-            login_data = {"email": self.username, "password": self.password}
-            login_data.update(token_data)
+    def login(self, client):
+        token_data = {"csrf_token": self.csrf_token}
+        login_data = {"email": self.username, "password": self.password}
+        login_data.update(token_data)
+        login_resp = client.post("/login", data=login_data, follow_redirects=True)
+        self.assertEqual(login_resp.status_code, 200)
 
-            login_resp = client.post("/login", data=login_data, follow_redirects=True)
-            self.assertEqual(login_resp.status_code, 200)
-            create_resp = client.get(
-                "create_project", data=login_data, follow_redirects=True
-            )
-            test_response = "Register a Project"
-            self.assertIn(bytes(test_response, encoding="utf8"), create_resp.data)
-
-    def register_dataset(
-        self,
-        name,
-        description,
-        doi,
-        date,
-        sci_area,
-        references,
-        tags,
-        image,
-        orcid,
-        csrf_token,
-    ):
-        return self.client.post(
-            "/create_project",
-            data=dict(
-                name=name,
-                description=description,
-                doi=doi,
-                date=date,
-                sci_area=sci_area,
-                references=references,
-                tags=tags,
-                image=image,
-                orcid=orcid,
-                csrf_token=csrf_token,
-            ),
-            follow_redirects=True,
-        )
+    def register_project(self, csrf_token, **kwargs):
+        data = dict(csrf_token=csrf_token)
+        data.update(kwargs)
+        return self.client.post("/create_project", data=data, follow_redirects=True,)
 
     def tag_post_query(self, tag):
         return self.client.post(
@@ -140,220 +103,207 @@ class Test_ProjectsTestCase(unittest.TestCase):
     def tag_get_query(self, tag):
         return self.client.get("/tag?tag=" + tag)
 
-    # # TODO -> improve image validation by comparing hash of initial
-    # # and uploaded image, not just the returned page
-    # def test_web_upload_dataset(self):
-    #     # Register dataset
-    #     image_name = "robo_test_image.png"
-    #     image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_name)
-    #     with open(image_path, 'rb') as img:
-    #         image = img.read()
+    def test_register_data_render(self):
+        # Auth check
+        with self.client as client:
+            create_resp = client.get("/create_project", follow_redirects=True)
+            test_response = "Please log in to access this page."
+            self.assertIn(bytes(test_response, encoding="utf8"), create_resp.data)
+            # setup csrf_token
+            token_data = {"csrf_token": self.csrf_token}
+            self.login(client)
+            create_resp = client.get(
+                "create_project", data=token_data, follow_redirects=True
+            )
+            test_response = "Register a Project"
+            self.assertIn(bytes(test_response, encoding="utf8"), create_resp.data)
 
-    #     # Authenticate
-    #     self.app.post('/login', data={'csrf_token': self.csrf_token})
+    # TODO -> improve image validation by comparing hash of initial
+    # and uploaded image, not just the returned page
+    def test_web_upload_project(self):
+        # Register project
+        image_name = "robo_test_image.png"
+        image_path = os.path.join(os.path.dirname(__file__), "images", image_name)
+        with open(image_path, "rb") as img:
+            image = img.read()
 
-    #     rv = self.register_dataset(name='My Awesome Dataset',
-    #                                description=libsum,
-    #                                doi='https://doi.org'
-    #                                    '/10.1145/3067695.3082550',
-    #                                date='2017-09-08',
-    #                                sci_area='eScience',
-    #                                references='Hart Emma, Paecther Ben, '
-    #                                           'Heinerman',
-    #                                tags='Robots,Evolution',
-    #                                image=(io.BytesIO(image), image_name),
-    #                                orcid="",
-    #                                csrf_token=self.csrf_token)
+        with self.client as client:
+            self.login(client)
+            rv = self.register_project(
+                name="My Awesome project",
+                description=libsum,
+                tags="Robots,Evolution",
+                image=(io.BytesIO(image), image_name),
+                csrf_token=self.csrf_token,
+            )
 
-    #     test_response = "Your submission has been received, " \
-    #                     "your metadata can be found at:"
-    #     self.assertIn(bytes(test_response, encoding='utf8'), rv.data)
+            test_response = (
+                "Your submission has been received, " "your metadata can be found at:"
+            )
+            self.assertIn(bytes(test_response, encoding="utf8"), rv.data)
 
-    # def test_web_upload_dataset_ten(self):
-    #     # Authenticate
-    #     self.app.post('/login', data={'csrf_token': self.csrf_token})
+    def test_web_upload_project_ten(self):
+        # upload 10
+        iterations = 10
+        with self.client as client:
+            self.login(client)
 
-    #     # upload 10
-    #     iterations = 10
-    #     image_name = "roborobo_simulation.png"
-    #     image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_name)
-    #     with open(image_path, 'rb') as img:
-    #         image = img.read()
+            image_name = "roborobo_simulation.png"
+            image_path = os.path.join(os.path.dirname(__file__), "images", image_name)
+            with open(image_path, "rb") as img:
+                image = img.read()
 
-    #     for dataset in range(iterations):
-    #         rv = self.register_dataset(name='My Awesome Dataset',
-    #                                    description=libsum,
-    #                                    doi='https://doi.org'
-    #                                        '/10.1145/3067695.3082550',
-    #                                    date='2017-09-08',
-    #                                    sci_area='eScience',
-    #                                    references='Hart Emma, Paecther Ben, '
-    #                                               'Heinerman',
-    #                                    tags='Robots,Evolution,'
-    #                                         'Individual Learning',
-    #                                    image=(io.BytesIO(image), image_name),
-    #                                    orcid="",
-    #                                    csrf_token=self.csrf_token)
+            for _ in range(iterations):
+                rv = self.register_project(
+                    name="My Awesome project",
+                    description=libsum,
+                    tags="AnotherTag",
+                    image=(io.BytesIO(image), image_name),
+                    csrf_token=self.csrf_token,
+                )
 
-    #         test_response = "Your submission has been received, " \
-    #                         "your metadata can be found at:"
-    #         self.assertIn(bytes(test_response, encoding='utf8'), rv.data)
+                test_response = (
+                    "Your submission has been received, "
+                    "your metadata can be found at:"
+                )
+                self.assertIn(bytes(test_response, encoding="utf8"), rv.data)
 
-    # def test_dataset_save_with_orcid(self):
-    #     # Authenticate
-    #     self.app.post('/login', data={'csrf_token': self.csrf_token})
+    def test_project_save_with_orcid(self):
+        with self.client as client:
+            # Authenticate
+            self.login(client)
 
-    #     image_name = "robo_test_image.png"
-    #     image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_name)
-    #     with open(image_path, 'rb') as img:
-    #         image = img.read()
+            image_name = "robo_test_image.png"
+            image_path = os.path.join(os.path.dirname(__file__), "images", image_name)
+            with open(image_path, "rb") as img:
+                image = img.read()
 
-    #     rv = self.register_dataset(name='My Awesome Dataset',
-    #                                description=libsum,
-    #                                doi='https://doi.org'
-    #                                    '/10.1145/3067695.3082550',
-    #                                date='2017-09-08',
-    #                                sci_area='eScience',
-    #                                references='Hart Emma, Paecther Ben, '
-    #                                           'Heinerman',
-    #                                tags='Robots,Evolution,Individual Learning',
-    #                                image=(io.BytesIO(image), image_name),
-    #                                orcid="3293-3043-2003-2032",
-    #                                csrf_token=self.csrf_token)
+            rv = self.register_project(
+                name="My Awesome project",
+                description=libsum,
+                tags="Robots,Evolution,Individual Learning",
+                image=(io.BytesIO(image), image_name),
+                csrf_token=self.csrf_token,
+            )
 
-    #     test_response = "Your submission has been received, " \
-    #                     "your metadata can be found at:"
-    #     self.assertIn(bytes(test_response, encoding='utf8'), rv.data)
+            test_response = (
+                "Your submission has been received, " "your metadata can be found at:"
+            )
+            self.assertIn(bytes(test_response, encoding="utf8"), rv.data)
 
-    #     # Clean up
-    #     Project.clear()
-    #     self.assertTrue(len(Project.get_all()) == 0)
+            # Clean up
+            Project.clear()
+            self.assertTrue(len(Project.get_all()) == 0)
 
-    # def test_dataset_save(self):
-    #     dataset = Project(doi='sdfsdf', sci_area='gdfuiort',
-    #                           name='nasiodas', references='iwerowr',
-    #                           description='sdifosdfios',
-    #                           image='/Usdufsi/sdfs.png', tags='sdfo,sdfo,sdf')
-    #     dataset_id = dataset.save()
-    #     new_dataset = Project.get(dataset_id)
-    #     [self.assertEqual(dataset.__dict__[key], new_dataset.__dict__[key])
-    #      for key in dataset.__dict__.keys()]
+    def test_project_save(self):
+        project = Project(
+            name="nasiodas",
+            description="sdifosdfios",
+            image="/Usdufsi/sdfs.png",
+            tags="sdfo,sdfo,sdf",
+        )
+        project_id = project.save()
+        new_project = Project.get(project_id)
+        [
+            self.assertEqual(project.__dict__[key], new_project.__dict__[key])
+            for key in project.__dict__.keys()
+        ]
 
-    # def test_dataset_update(self):
-    #     # Pre cleanup
-    #     self.user.datasets.clear()
-    #     self.user.save()
-    #     # Save a new dataset
-    #     dataset = Project(doi='sdfsdf', sci_area='gdfuiort',
-    #                           name='nasiodas', references='iwerowr',
-    #                           description='sdifosdfios',
-    #                           image='/Usdufsi/sdfs.png', tags='sdfo,sdfo,sdf')
-    #     dataset_id = dataset.save()
-    #     new_dataset = Project.get(dataset_id)
-    #     [self.assertEqual(dataset.__dict__[key], new_dataset.__dict__[key])
-    #      for key in dataset.__dict__.keys()]
-    #     # Authenticate
-    #     self.app.post('/login', data={'csrf_token': self.csrf_token})
-    #     # Update dataset without being the correct owner
-    #     new_data = {'name': 'My Awesome Dataset',
-    #                 'description': 'nice_description',
-    #                 'doi': 'https://doi.org/10.1145/3067695.3082550',
-    #                 'date': '2017-09-08',
-    #                 'sci_area': 'eScience',
-    #                 'references': 'Hart Emma, Paecther Ben, Heinerman',
-    #                 'tags': 'Robots,Evolution,Individual Learning',
-    #                 'image': '/sdfsfs/sdfsf.png',
-    #                 'orcid': "3293-3043-2003-2032",
-    #                 'csrf_token': self.csrf_token}
-    #     rv = self.app.post("/update/" + dataset_id, data=new_data,
-    #                        follow_redirects=True)
-    #     test_response = "Your trying to update a dataset thats not yours"
-    #     self.assertIn(bytes(test_response, encoding='utf8'), rv.data)
-    #     self.user.datasets.append(dataset_id)
-    #     self.user.save()
-    #     rv = self.app.post("/update/" + dataset_id, data=new_data,
-    #                        follow_redirects=True)
-    #     test_response = "Update Success, your data can be found at: "
-    #     self.assertIn(bytes(test_response, encoding='utf8'), rv.data)
+    def test_project_update(self):
+        # Pre cleanup
+        self.user.projects.clear()
+        self.user.save()
+        # Save a new project
+        project = Project(
+            name="nasiodas",
+            description="sdifosdfios",
+            image=os.path.join("Usdufsi", "sdfs.png"),
+            tags="sdfo,sdfo,sdf",
+        )
+        project_id = project.save()
+        new_project = Project.get(project_id)
+        [
+            self.assertEqual(project.__dict__[key], new_project.__dict__[key])
+            for key in project.__dict__.keys()
+        ]
 
-    # def test_dataset_getall_clear(self):
-    #     Project.clear()
-    #     self.assertTrue(len(Project.get_all()) == 0)
-    #     num_dataset = 10
-    #     for num in range(num_dataset):
-    #         dataset = Project(doi=str(num), sci_area='gdfuiort',
-    #                               name='nasiodas', references='iwerowr',
-    #                               description='sdifosdfios',
-    #                               image='/Usdufsi/sdfs.png',
-    #                               tags='sdfo,sdfo,sdf')
-    #         dataset.save()
+        # Authenticate
+        with self.client as client:
+            self.login(client)
+            # Update project without being the correct owner
+            new_data = {
+                "name": "My Awesome project",
+                "description": "nice_description",
+                "tags": "Robots,Evolution,Individual Learning",
+                "image": os.path.join("sdfsfs", "sdfsf.png"),
+                "csrf_token": self.csrf_token,
+            }
+            rv = client.post(
+                "/update/" + project_id, data=new_data, follow_redirects=True
+            )
+            test_response = "Your trying to update an entity that"
+            self.assertIn(bytes(test_response, encoding="utf8"), rv.data)
+            self.user.projects.append(project_id)
+            self.user.save()
+            rv = client.post(
+                "/update/" + project_id, data=new_data, follow_redirects=True
+            )
+            test_response = "Update Success, your data can be found at: "
+            self.assertIn(bytes(test_response, encoding="utf8"), rv.data)
 
-    #     self.assertEqual(len(Project.get_all()), num_dataset)
+    def test_project_getall_clear(self):
+        Project.clear()
+        self.assertTrue(len(Project.get_all()) == 0)
+        num_project = 10
+        for _ in range(num_project):
+            project = Project(
+                name="nasiodas",
+                description="sdifosdfios",
+                image=os.path.join("Usdufsi", "sdfs.png"),
+                tags="sdfo,sdfo,sdf",
+            )
+            project.save()
+        self.assertEqual(len(Project.get_all()), num_project)
 
-    # # Tests whether a list of submitted Datasets with tags are
-    # # properly returned when search for with the post request (Search Bar)
-    # def test_tag_post_search(self):
-    #     Project.clear()
-    #     self.assertTrue(len(Project.get_all()) == 0)
+    # Tests whether a list of submitted projects with tags are
+    # properly returned when search for with the post request (Search Bar)
+    def test_tag_post_search(self):
+        Project.clear()
+        self.assertTrue(len(Project.get_all()) == 0)
 
-    #     first_tag = 'eScience:bohrium:tests'
-    #     second_tag = 'eScience:bohrium:benchmark'
-    #     num_dataset = 10
-    #     for num in range(num_dataset):
-    #         if num % 2 == 0:
-    #             dataset = Project(doi=str(num), sci_area='gdfuiort',
-    #                                   name='nasiodas',
-    #                                   references='iwerowr',
-    #                                   description='sdifosdfios',
-    #                                   image='/Usdufsi/sdfs.png',
-    #                                   tags=first_tag)
-    #         else:
-    #             dataset = Project(doi=str(num), sci_area='gdfuiort',
-    #                                   name='nasiodas',
-    #                                   references='iwerowr',
-    #                                   description='sdifosdfios',
-    #                                   image='/Usdufsi/sdfs.png',
-    #                                   tags=second_tag)
-    #         dataset.save()
+        first_tag = "eScience:bohrium:tests"
+        second_tag = "eScience:bohrium:benchmark"
+        num_project = 10
+        for num in range(num_project):
+            if num % 2 == 0:
+                project = Project(
+                    name="nasiodas",
+                    description="sdifosdfios",
+                    image=os.path.join("Usdufsi", "sdfs.png"),
+                    tags=first_tag,
+                )
+            else:
+                project = Project(
+                    name="nasiodas",
+                    description="sdifosdfios",
+                    image=os.path.join("Usdufsi", "sdfs.png"),
+                    tags=second_tag,
+                )
+            project.save()
 
-    #     # Test Post Search -> json response evaluated
-    #     first_query = json.loads(
-    #         self.tag_post_query(tag=first_tag)
-    #             .get_data(as_text=True))
-    #     for dataset in first_query['data']:
-    #         self.assertTrue(dataset['tags'] == first_tag)
+        # Test Post Search -> json response evaluated
+        first_query = json.loads(
+            self.tag_post_query(tag=first_tag).get_data(as_text=True)
+        )
+        for project in first_query["data"]:
+            self.assertTrue(project["tags"] == first_tag)
 
-    #     second_query = json.loads(
-    #         self.tag_post_query(tag=second_tag)
-    #             .get_data(as_text=True))
-    #     for dataset in second_query['data']:
-    #         # TODO -> test URL GET search query
-    #         self.assertTrue(dataset['tags'] == second_tag)
-
-    # # Test Erda import parsers
-    # def test_erda_import(self):
-    #     legacy_data = {'name': 'Rasmus', 'description': 'Rasmus test',
-    #                    'date': '2017-09-08'}
-    #     pre_tag_data = {'name': 'Rasmus_Pre_Tag_Archive_test',
-    #                     'description': libsum,
-    #                     'date': '2018-02-16'}
-    #     # Authenticate
-    #     data = {'csrf_token': self.csrf_token}
-    #     self.app.post('/login', data=data)
-    #     # Render create dataset page
-    #     legacy_import_rv = json.loads(self.erda_import_query(
-    #         erda_url='https://erda.dk/public/archives'
-    #                  '/YXJjaGl2ZS05dHRxRVU='
-    #                  '/published-archive.html')
-    #                                   .get_data(as_text=True))
-    #     self.maxDiff = None
-    #     self.assertEqual(legacy_data, legacy_import_rv['data'])
-
-    #     pre_tag_import = json.loads(self.erda_import_query(
-    #         erda_url='http://www.erda.dk/public/archives'
-    #                  '/YXJjaGl2ZS1xOXdiNzc=/published-archive.html')
-    #         .get_data(as_text=True))
-    #     self.assertEqual(pre_tag_data, pre_tag_import['data'])
+        second_query = json.loads(
+            self.tag_post_query(tag=second_tag).get_data(as_text=True)
+        )
+        for project in second_query["data"]:
+            # TODO -> test URL GET search query
+            self.assertTrue(project["tags"] == second_tag)
 
 
 if __name__ == "__main__":

@@ -144,7 +144,7 @@ def update(object_id):
     if form.validate_on_submit():
         # Only save the image if a new was submitted, else keep the old name
         f = form.image.data
-        if f.filename != "":
+        if f and hasattr(f, "filename") and f.filename != "":
             filename = secure_filename(unique_name_encoding(f.filename))
             f.save(os.path.join(config.get("PROJECTS", "upload_folder"), filename))
             # Remove old
