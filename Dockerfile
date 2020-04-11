@@ -68,7 +68,7 @@ RUN pip3 install setuptools && \
     pip3 install wheel==0.30.0 && \
     python3 setup.py bdist_wheel && \
     pip3 install -r requirements.txt && \
-    pip3 install -r tests/requirements.txt && \
+    pip3 install -r projects/tests/requirements.txt && \
     python3 setup.py install
 
 # Allow www-data to start a process that binds to :80/:443
@@ -84,7 +84,6 @@ RUN rm -r /app
 WORKDIR ${APP_DIR}
 
 EXPOSE 80
-EXPOSE 8080
 
 # Ensure that the supervisor directories are there
 RUN mkdir -p /var/log/supervisor && \

@@ -12,8 +12,7 @@ init:
 
 build:
 	docker build -t ${OWNER}/${IMAGE}:${TAG} --build-arg SERVER_NAME=${SERVER_NAME} \
-	                                         --build-arg APP_NAME=${APP_NAME} \
-											 .
+	                                         --build-arg APP_NAME=${APP_NAME} .
 
 clean:
 	rm -fr persistence
