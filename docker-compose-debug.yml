@@ -11,4 +11,4 @@ services:
     volumes:
       - ./persistence:/var/projects/persistence:rw
       - ./res:/etc/projects/res:ro
-    command: su -s /bin/bash -c 'authbind python3 run.py --debug --port 80' www-data
+      - ./supervisord-debug.conf:/etc/supervisor/conf.d/supervisord.conf:ro
