@@ -1,8 +1,9 @@
 OWNER=nielsbohr
-APP_NAME=projects
 IMAGE=${APP_NAME}-site
-TAG=edge
+APP_NAME=projects
+APP_DIR=/var/${APP_NAME}
 SERVER_NAME=projects.escience.dk
+TAG=edge
 
 all: clean build push
 
@@ -12,7 +13,8 @@ init:
 
 build:
 	docker build -t ${OWNER}/${IMAGE}:${TAG} --build-arg SERVER_NAME=${SERVER_NAME} \
-	                                         --build-arg APP_NAME=${APP_NAME} .
+	                                         --build-arg APP_NAME=${APP_NAME} \
+						 --build-arg APP_DIR=${APP_DIR} .
 
 clean:
 	rm -fr persistence

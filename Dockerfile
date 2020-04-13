@@ -2,12 +2,14 @@
 FROM ubuntu:latest
 # Don't prompt tzdata
 ENV DEBIAN_FRONTEND=noninteractive
-ARG SERVER_NAME=projects.escience.dk
-ARG APP_NAME=projects
-ARG APP_DIR=/var/${APP_NAME}
 
-ENV SERVERNAME=${SERVER_NAME}
-ENV APP_DIR=${APP_DIR}
+ARG SERVER_NAME
+ARG APP_NAME
+ARG APP_DIR
+
+ENV SERVERNAME=${SERVER_NAME:-projects.escience.dk}
+ENV APPNAME=${APP_NAME:-projects}
+ENV APPDIR=${APP_DIR:-/var/projects}
 
 RUN apt-get update && apt-get install --no-install-recommends -yq \
     apache2 \
@@ -32,23 +34,23 @@ RUN mkdir -p /var/run/apache2
 
 # Setup configuration
 # Also enable wsgi and header modules
-COPY apache/apache2-http.conf /etc/apache2/sites-available/${APP_NAME}.conf
+COPY apache/apache2-http.conf /etc/apache2/sites-available/${APPNAME}.conf
 RUN a2dissite 000-default.conf && \
-    a2ensite ${APP_NAME}.conf && \
+    a2ensite ${APPNAME}.conf && \
     a2enmod wsgi && \
     a2enmod headers && \
     a2enmod ssl && \
     a2enmod rewrite
 
-RUN mkdir ${APP_DIR}
+RUN mkdir ${APPDIR}
 # Prepare WSGI launcher script
-COPY ./res ${APP_DIR}/res
-COPY ./apache/app.wsgi ${APP_DIR}/wsgi/
-COPY ./run.py ${APP_DIR}/
-RUN mkdir -p ${APP_DIR}/persistence && \
-    chown root:www-data ${APP_DIR}/persistence && \
-    chmod 775 -R ${APP_DIR}/persistence && \
-    chmod 2755 -R ${APP_DIR}/wsgi
+COPY ./res ${APPDIR}/res
+COPY ./apache/app.wsgi ${APPDIR}/wsgi/
+COPY ./run.py ${APPDIR}/
+RUN mkdir -p ${APPDIR}/persistence && \
+    chown root:www-data ${APPDIR}/persistence && \
+    chmod 775 -R ${APPDIR}/persistence && \
+    chmod 2755 -R ${APPDIR}/wsgi
 
 ENV ENV_DIR=/etc/projects
 
@@ -81,7 +83,7 @@ RUN chown www-data:adm -R /var/log/apache2 && \
     chown www-data:www-data -R /var/run/apache2
 
 RUN rm -r /app
-WORKDIR ${APP_DIR}
+WORKDIR ${APPDIR}
 
 EXPOSE 80
 
