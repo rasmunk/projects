@@ -198,9 +198,8 @@ def request_auth():
             data = form.data
             # Remove csrf_token
             del data["csrf_token"]
-            subject = "{}".format(form.email.data)
-            subject = subject + " requests {} access".format(
-                config.get("PROJECTS", "title")
+            subject = "{} requests {} access".format(
+                form.email.data, config.get("PROJECTS", "title")
             )
             token = generate_confirmation_token(data=form.data)
             confirm_url = url_for("projects.approve_auth", token=token, _external=True)
@@ -397,7 +396,7 @@ def logout():
 
 @projects_blueprint.route("/tag/<tag>", methods=["GET"])
 def tag_search(tag):
-    form = TagsSearchForm(data={"tag": tag}, meta={'csrf': False})
+    form = TagsSearchForm(data={"tag": tag}, meta={"csrf": False})
     entities = {}
     tags = Project.get_top_with("tags")
     if form.validate():
@@ -410,7 +409,7 @@ def tag_search(tag):
 # TODO -> refactor with fair search forms in common views instead.
 @projects_blueprint.route("/search", methods=["GET"])
 def tag_external_search():
-    form = TagsSearchForm(request.args, meta={'csrf': False})
+    form = TagsSearchForm(request.args, meta={"csrf": False})
     entities = {}
     # The return form should contain a csrf_token
     return_form = TagsSearchForm()
