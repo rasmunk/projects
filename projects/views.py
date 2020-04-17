@@ -397,7 +397,7 @@ def logout():
 
 @projects_blueprint.route("/tag/<tag>", methods=["GET"])
 def tag_search(tag):
-    form = TagsSearchForm(data={"tag": tag}, csrf_enabled=False)
+    form = TagsSearchForm(data={"tag": tag}, meta={'csrf': False})
     entities = {}
     tags = Project.get_top_with("tags")
     if form.validate():
@@ -410,7 +410,7 @@ def tag_search(tag):
 # TODO -> refactor with fair search forms in common views instead.
 @projects_blueprint.route("/search", methods=["GET"])
 def tag_external_search():
-    form = TagsSearchForm(request.args, csrf_enabled=False)
+    form = TagsSearchForm(request.args, meta={'csrf': False})
     entities = {}
     # The return form should contain a csrf_token
     return_form = TagsSearchForm()
