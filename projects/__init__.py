@@ -6,8 +6,9 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from flask_nav import Nav
 from projects_base.base import base_blueprint
+from projects_base.base.forms import FormManager
+from projects.forms import DefaultProjectForm
 from projects.models import User
-from projects.forms import ProjectFormManager, DefaultProjectForm
 from projects.conf import config
 
 app = Flask(__name__)
@@ -28,8 +29,6 @@ Bootstrap(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "projects.login"
-
-project_manager = ProjectFormManager()
 
 # Onetime authentication reset token salt
 app.config["ONETIME_TOKEN_SALT"] = os.urandom(24)
@@ -75,6 +74,13 @@ if "MAIL_PASSWORD" in os.environ:
     app.config["MAIL_PASSWORD"] = os.environ["MAIL_PASSWORD"]
 else:
     app.config["MAIL_PASSWORD"] = config.get("MAIL", "password")
+
+# Setup the FormManager and the default class form
+config_class = config.get("PROJECTS", "form_class", **{"fallback": None})
+config_module = config.get("PROJECTS", "form_module", **{"fallback": None})
+form_manager = FormManager(
+    default_class=config_class, default_module=config_module, custom_key="default_form"
+)
 
 # Connect mail
 mail = Mail(app)

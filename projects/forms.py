@@ -17,29 +17,6 @@ class MultiCheckboxField(SelectMultipleField):
     option_widget = widgets.CheckboxInput()
 
 
-class ProjectFormManager:
-    form_class = None
-
-    def register_form_class(self, class_name, module=None):
-        # Look in external module if provided, else try in the
-        # projects module
-        if module:
-            module_ = __import__(module)
-            class_ = getattr(module_, class_name)
-        else:
-            module_ = __import__("projects")
-            class_ = getattr(module_, class_name)
-        self.form_class = class_
-
-    def get_form_class(self):
-        if self.form_class is None:
-            self.register_form_class(
-                config.get("PROJECTS", "form_class"),
-                config.get("PROJECTS", "form_module", **{"fallback": None}),
-            )
-        return self.form_class
-
-
 class DefaultProjectForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     description = TextAreaField("Description")

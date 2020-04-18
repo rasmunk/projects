@@ -8,8 +8,8 @@ from projects import nav
 def nav_bar():
     navbar = list(
         Navbar(
-            View("{}".format(config.get("PROJECTS", "title")), ".projects"),
-            View("Projects", ".projects"),
+            View("{}".format(config.get("PROJECTS", "title")), "projects.projects"),
+            View("Projects", "projects.projects"),
         ).items
     )
     if current_user.is_authenticated:
