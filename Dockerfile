@@ -59,7 +59,6 @@ RUN mkdir -p $ENV_DIR && \
     echo "export ENV_DIR=${ENV_DIR}" >> /etc/apache2/envvars && \
     echo "export SERVERNAME=${SERVERNAME}" >> /etc/apache2/envvars && \
     echo "ServerName ${SERVERNAME}" >> /etc/apache2/apache2.conf
-COPY ./envvars-templates.py $ENV_DIR/envvars.py
 
 # Copy in the source code
 COPY . /app
