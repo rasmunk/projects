@@ -16,7 +16,3 @@ for key, folder in folders.items():
         print("Created: " + folder)
     except FileExistsError:
         pass
-
-# Used by the formmanager to extract the Form class from the config
-config_class = config.get("PROJECTS", "form_class", **{"fallback": None})
-config_module = config.get("PROJECTS", "form_module", **{"fallback": None})

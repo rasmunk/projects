@@ -6,7 +6,7 @@ from flask_mail import Message
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
 from bcrypt import hashpw, gensalt
-from projects import mail, projects_blueprint, app
+from projects import mail, projects_blueprint, app, form_manager
 from projects.conf import config
 from projects.models import Project, User
 from projects.forms import (
@@ -23,7 +23,6 @@ from projects.helpers import (
     confirm_token,
 )
 from projects_base.base.forms import TagsSearchForm
-from projects.managers import form_manager
 
 
 # Routes
@@ -56,7 +55,7 @@ def my_projects():
 
 @projects_blueprint.route("/show/<object_id>", methods=["GET"])
 def show(object_id):
-    form_class = form_manager.get_form_class("default_form")
+    form_class = form_manager.get_form_class("config_form")
     form = form_class()
     entity = Project.get(object_id)
     if entity is None:
@@ -90,7 +89,7 @@ def show(object_id):
 @projects_blueprint.route("/create_project", methods=["GET", "POST"])
 @login_required
 def create():
-    form_class = form_manager.get_form_class("default_form")
+    form_class = form_manager.get_form_class("config_form")
     form = form_class(CombinedMultiDict((request.files, request.form)))
 
     if form.validate_on_submit():
@@ -137,7 +136,7 @@ def update(object_id):
         flash("Your trying to update an entity that's not yours", "danger")
         return redirect(url_for("projects.projects"))
 
-    form_class = form_manager.get_form_class("default_form")
+    form_class = form_manager.get_form_class("config_form")
     form = form_class(CombinedMultiDict((request.files, request.form)))
     # Strip image upload validation on upload (Optional)
     form.image.validators = [
