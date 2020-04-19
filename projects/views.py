@@ -6,7 +6,7 @@ from flask_mail import Message
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
 from bcrypt import hashpw, gensalt
-from projects import mail, projects_blueprint, app, form_manager
+from projects import mail, projects_blueprint, app
 from projects.conf import config
 from projects.models import Project, User
 from projects.forms import (
@@ -16,9 +16,14 @@ from projects.forms import (
     PasswordResetForm,
     FileRequired,
 )
-from projects.helpers import unique_name_encoding, unique_name_decode
+from projects.helpers import (
+    unique_name_encoding,
+    unique_name_decode,
+    generate_confirmation_token,
+    confirm_token,
+)
 from projects_base.base.forms import TagsSearchForm
-from projects.helpers import generate_confirmation_token, confirm_token
+from projects.managers import form_manager
 
 
 # Routes
