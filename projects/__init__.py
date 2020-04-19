@@ -83,7 +83,9 @@ mail = Mail(app)
 config_class = config.get("PROJECTS", "form_class", **{"fallback": None})
 config_module = config.get("PROJECTS", "form_module", **{"fallback": None})
 
-form_manager = FormManager(default_class=config_class, default_module=config_module, custom_key="config_form")
+form_manager = FormManager(
+    default_class=config_class, default_module=config_module, custom_key="config_form"
+)
 
 # Setup navbar
 nav = Nav()
