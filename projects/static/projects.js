@@ -114,7 +114,7 @@ function setupResetPassword() {
 // Projects page
 if (location.pathname.match(/\/search$/i) || location.pathname == '/index' || location.pathname == '/my_projects') {
     $(document).ready(function () {
-        setupTagSearch(createProjectTile);
+        setupTagSearch(createProjectTile, "#8fd182", "#46743c");
     });
 }
 
