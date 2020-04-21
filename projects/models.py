@@ -8,9 +8,6 @@ class Project(ShelveObject):
         for key, value in kwargs.items():
             self.__dict__[key] = value
 
-    def serialize(self):
-        return self.__dict__
-
 
 class User(ShelveObject):
     def __init__(self, **kwargs):
@@ -18,8 +15,6 @@ class User(ShelveObject):
         for key, value in kwargs.items():
             self.__dict__[key] = value
 
-    def serialize(self):
-        return self.__dict__
 
     @staticmethod
     def valid_user(email, password):
