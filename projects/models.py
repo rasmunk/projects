@@ -15,7 +15,6 @@ class User(ShelveObject):
         for key, value in kwargs.items():
             self.__dict__[key] = value
 
-
     @staticmethod
     def valid_user(email, password):
         user = User.get_with_first("email", email)
