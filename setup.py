@@ -41,6 +41,7 @@ setup(
         "flask_mail",
         "bcrypt",
         "configparser",
+        "email-validator"
     ],
     setup_requires=["pytest-runner",],
     tests_require=["pytest",],
