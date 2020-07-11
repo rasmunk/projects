@@ -14,9 +14,9 @@ ENV APPDIR=${APP_DIR:-/var/projects}
 RUN apt-get update && apt-get install --no-install-recommends -yq \
     apache2 \
     libapache2-mod-wsgi-py3 \
-    python3 \
-    python3-pip \
-    python3-dev \
+    python3.7 \
+    python3.7-pip \
+    python3.7-dev \
     libssl-dev \
     libffi-dev \
     net-tools \
