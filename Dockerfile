@@ -54,6 +54,8 @@ RUN mkdir -p ${APPDIR}/persistence && \
 
 ENV ENV_DIR=/etc/projects
 
+# TODO, move this into external configuration
+# because it needs to be altered by child images
 # Install the envvars script, code and cleanup
 RUN mkdir -p $ENV_DIR && \
     echo "export ENV_DIR=${ENV_DIR}" >> /etc/apache2/envvars && \
